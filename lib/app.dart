@@ -14,7 +14,7 @@ class RouteApp extends StatelessWidget {
         // '/add': (BuildContext context) => const AddPage(),
         // '/profile': (BuildContext context) => const ProfilePage(),
         // '/wishlist': (context) => const WishlistPage(),
-        // '/': (BuildContext context) => const HomePage(),
+        '/': (BuildContext context) => LoginPage(),
       },
       theme: ThemeData.light(useMaterial3: true),
     );
