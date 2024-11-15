@@ -5,5 +5,5 @@ import 'app.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Firebase 초기화 전에 호출 필요
   await Firebase.initializeApp(); // Firebase 초기화
-  runApp(ShrineApp());
+  runApp(RouteApp());
 }
