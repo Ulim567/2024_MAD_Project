@@ -27,10 +27,7 @@ class DefaultFirebaseOptions {
       case TargetPlatform.macOS:
         return macos;
       case TargetPlatform.windows:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for windows - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return windows;
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -44,40 +41,49 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyAK7FqdK9hBTx0mdfU3afQWCrZ9Gat7uP0',
-    appId: '1:932808215673:web:35b6f3a6541b9cf5f8d8a8',
-    messagingSenderId: '932808215673',
-    projectId: 'finalterm-ae2a0',
-    authDomain: 'finalterm-ae2a0.firebaseapp.com',
-    storageBucket: 'finalterm-ae2a0.appspot.com',
-    measurementId: 'G-KLLKGGRN38',
+    apiKey: 'AIzaSyBUI2cfmh0L8xLkA3DkzUMpNYbYvrmck4g',
+    appId: '1:292172589182:web:11a1f5761cdeb917db102f',
+    messagingSenderId: '292172589182',
+    projectId: 'mad-project-eda74',
+    authDomain: 'mad-project-eda74.firebaseapp.com',
+    storageBucket: 'mad-project-eda74.firebasestorage.app',
+    measurementId: 'G-4VKT6FWBEL',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDFkmwEJWSniPrF7Qen5WduMiaJaj9XE5U',
-    appId: '1:932808215673:android:fd012a1b65cb529df8d8a8',
-    messagingSenderId: '932808215673',
-    projectId: 'finalterm-ae2a0',
-    storageBucket: 'finalterm-ae2a0.appspot.com',
+    apiKey: 'AIzaSyB5X3ZqJz9jKySNHvxs2uShvCl7pQfIsjM',
+    appId: '1:292172589182:android:d91211eebbb84beedb102f',
+    messagingSenderId: '292172589182',
+    projectId: 'mad-project-eda74',
+    storageBucket: 'mad-project-eda74.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyDpC3ZAL7qiLsP0V0--M-5BXMmlWbCmvVw',
-    appId: '1:932808215673:ios:79dee366118e8d9bf8d8a8',
-    messagingSenderId: '932808215673',
-    projectId: 'finalterm-ae2a0',
-    storageBucket: 'finalterm-ae2a0.appspot.com',
-    iosClientId: '932808215673-fkdc41d5ct7tg3l6brnitbtaojnf5li7.apps.googleusercontent.com',
+    apiKey: 'AIzaSyBvh0bCYbg2MqTICi-KWUC3uR-VxBIvXXY',
+    appId: '1:292172589182:ios:281cf4f2aee4a604db102f',
+    messagingSenderId: '292172589182',
+    projectId: 'mad-project-eda74',
+    storageBucket: 'mad-project-eda74.firebasestorage.app',
     iosBundleId: 'com.example.mdc100Series',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyDpC3ZAL7qiLsP0V0--M-5BXMmlWbCmvVw',
-    appId: '1:932808215673:ios:79dee366118e8d9bf8d8a8',
-    messagingSenderId: '932808215673',
-    projectId: 'finalterm-ae2a0',
-    storageBucket: 'finalterm-ae2a0.appspot.com',
-    iosClientId: '932808215673-fkdc41d5ct7tg3l6brnitbtaojnf5li7.apps.googleusercontent.com',
+    apiKey: 'AIzaSyBvh0bCYbg2MqTICi-KWUC3uR-VxBIvXXY',
+    appId: '1:292172589182:ios:281cf4f2aee4a604db102f',
+    messagingSenderId: '292172589182',
+    projectId: 'mad-project-eda74',
+    storageBucket: 'mad-project-eda74.firebasestorage.app',
     iosBundleId: 'com.example.mdc100Series',
   );
+
+  static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'AIzaSyBUI2cfmh0L8xLkA3DkzUMpNYbYvrmck4g',
+    appId: '1:292172589182:web:6413a58d51b1b1cddb102f',
+    messagingSenderId: '292172589182',
+    projectId: 'mad-project-eda74',
+    authDomain: 'mad-project-eda74.firebaseapp.com',
+    storageBucket: 'mad-project-eda74.firebasestorage.app',
+    measurementId: 'G-TENSDFS9EX',
+  );
+
 }
