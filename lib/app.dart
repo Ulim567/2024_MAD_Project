@@ -13,12 +13,6 @@
 // limitations under the License.
 
 import 'package:flutter/material.dart';
-import 'package:shrine/add.dart';
-import 'package:shrine/profile.dart';
-import 'package:shrine/wishlist.dart';
-
-import 'home.dart';
-import 'login.dart';
 
 // TODO: Convert ShrineApp to stateful widget (104)
 class ShrineApp extends StatelessWidget {
@@ -30,11 +24,11 @@ class ShrineApp extends StatelessWidget {
       title: 'Shrine',
       initialRoute: '/login',
       routes: {
-        '/login': (BuildContext context) => const LoginPage(),
-        '/add': (BuildContext context) => const AddPage(),
-        '/profile': (BuildContext context) => const ProfilePage(),
-        '/wishlist': (context) => const WishlistPage(),
-        '/': (BuildContext context) => const HomePage(),
+        // '/login': (BuildContext context) => const LoginPage(),
+        // '/add': (BuildContext context) => const AddPage(),
+        // '/profile': (BuildContext context) => const ProfilePage(),
+        // '/wishlist': (context) => const WishlistPage(),
+        // '/': (BuildContext context) => const HomePage(),
       },
       // TODO: Customize the theme (103)
       theme: ThemeData.light(useMaterial3: true),
