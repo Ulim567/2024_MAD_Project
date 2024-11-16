@@ -16,21 +16,35 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: ElevatedButton(
-          onPressed: () async {
-            try {
-              UserCredential userCredential =
-                  await authService.signInWithGoogle();
-              User? user = userCredential.user;
-              if (user != null) {
-                print('Google Sign-In Successful: ${user.displayName}');
-                // Navigator.pushNamed(context, "/");
-              }
-            } catch (error) {
-              print('Error during Google sign-in: $error');
-            }
-          },
-          child: const Text("Sign in with Google"),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton(
+              onPressed: () async {
+                try {
+                  UserCredential userCredential =
+                      await authService.signInWithGoogle();
+                  User? user = userCredential.user;
+                  if (user != null) {
+                    print('Google Sign-In Successful: ${user.displayName}');
+                    // Navigator.pushNamed(context, "/");
+                  }
+                } catch (error) {
+                  print('Error during Google sign-in: $error');
+                }
+              },
+              child: const Text("Sign in with Google"),
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            ElevatedButton(
+              child: const Text("go home(temp)"),
+              onPressed: () => {
+                Navigator.pushNamed(context, "/"),
+              },
+            ),
+          ],
         ),
       ),
     );
