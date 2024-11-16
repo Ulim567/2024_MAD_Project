@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shrine/page/home.dart';
 import 'package:shrine/page/login.dart';
 
 class RouteApp extends StatelessWidget {
@@ -14,7 +15,7 @@ class RouteApp extends StatelessWidget {
         // '/add': (BuildContext context) => const AddPage(),
         // '/profile': (BuildContext context) => const ProfilePage(),
         // '/wishlist': (context) => const WishlistPage(),
-        '/': (BuildContext context) => LoginPage(),
+        '/': (BuildContext context) => HomePage(),
       },
       theme: ThemeData.light(useMaterial3: true),
     );
