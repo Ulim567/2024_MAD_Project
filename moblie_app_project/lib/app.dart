@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/map': (BuildContext context) => const GoogleTempPage(),
         '/login': (BuildContext context) => const LoginPage(),
-        '/': (BuildContext context) => const HomePage(),
+        '/': (BuildContext context) => const Home(),
       },
       theme: ThemeData.light(useMaterial3: true),
     );
