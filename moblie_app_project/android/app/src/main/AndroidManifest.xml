@@ -3,6 +3,8 @@
         android:label="moblie_app_project"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <meta-data android:name="com.google.android.geo.API_KEY"
+               android:value="AIzaSyB0NDreHRzw7y2AOGBy-OOt2eGPEyieUOg"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"
