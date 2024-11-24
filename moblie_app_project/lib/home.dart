@@ -22,6 +22,8 @@ class _HomeState extends State<Home> {
                 currentPageIndex = index;
               });
             },
+            indicatorColor: Colors.amber,
+            selectedIndex: currentPageIndex,
             destinations: const <Widget>[
               NavigationDestination(
                   icon: Icon(Icons.person_outline),
@@ -55,33 +57,41 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(32),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(
-            height: 100,
+            height: 75,
           ),
           const Text(
             "안녕하세요\n안심 귀가 서비스입니다",
-            style: TextStyle(fontSize: 28),
+            style: TextStyle(fontSize: 24),
           ),
           const SizedBox(
-            height: 10,
+            height: 20,
           ),
           const TextField(
             decoration: InputDecoration(
-              border: OutlineInputBorder(),
+              prefixIcon: Icon(Icons.menu),
+              suffixIcon: Icon(Icons.search),
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(15))),
               hintText: '어디로 갈까요?',
             ),
           ),
           Expanded(child: Container()),
-          TextButton(
-              onPressed: () {
-                print("도착지 설정 없이");
-              },
-              child: const Row(
-                children: [Icon(Icons.arrow_forward), Text("도착지 설정 없이 시작하기")],
-              ))
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: TextButton(
+                onPressed: () {
+                  print("도착지 설정 없이");
+                },
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [Icon(Icons.arrow_forward), Text("도착지 설정 없이 시작하기")],
+                )),
+          )
         ],
       ),
     );
