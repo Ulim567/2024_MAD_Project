@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geolocator/geolocator.dart'; // geolocator 임포트
 import 'google_places_service.dart';
 
 class GoogleTempPage extends StatefulWidget {
@@ -15,8 +16,53 @@ class _GoogleTempPageState extends State<GoogleTempPage> {
   TextEditingController _searchController = TextEditingController();
   List<String> _addressSuggestions = [];
   LatLng? _searchedLocation;
+  bool _isLocationLoaded = false;
 
   final GooglePlacesService _placesService = GooglePlacesService();
+
+  @override
+  void initState() {
+    super.initState();
+    _getLocation(); // 현재 위치 가져오기
+  }
+
+  Future<void> _getLocation() async {
+    // 현재 권한 상태 확인
+    LocationPermission permission = await Geolocator.checkPermission();
+
+    // 권한 요청 및 상태 확인
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        // 권한이 거부된 경우
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("위치 권한이 필요합니다.")),
+        );
+        return;
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      // 권한이 영구적으로 거부된 경우
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("앱 설정에서 위치 권한을 활성화해주세요."),
+        ),
+      );
+      return;
+    }
+    // 권한이 허용된 경우 위치 가져오기
+    Position currentPosition = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+
+    // 현재 위치 업데이트
+    setState(() {
+      _currentLatLng =
+          LatLng(currentPosition.latitude, currentPosition.longitude);
+      _isLocationLoaded = true;
+    });
+  }
 
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
@@ -84,21 +130,26 @@ class _GoogleTempPageState extends State<GoogleTempPage> {
               ),
             ),
           Expanded(
-            child: GoogleMap(
-              onMapCreated: _onMapCreated,
-              initialCameraPosition: CameraPosition(
-                target: _currentLatLng,
-                zoom: 11.0,
-              ),
-              markers: {
-                if (_searchedLocation != null)
-                  Marker(
-                    markerId: const MarkerId('searchedLocation'),
-                    position: _searchedLocation!,
-                    infoWindow: const InfoWindow(title: 'Searched Location'),
+            child: _isLocationLoaded
+                ? GoogleMap(
+                    onMapCreated: _onMapCreated,
+                    initialCameraPosition: CameraPosition(
+                      target: _currentLatLng,
+                      zoom: 11.0,
+                    ),
+                    markers: {
+                      if (_searchedLocation != null)
+                        Marker(
+                          markerId: const MarkerId('searchedLocation'),
+                          position: _searchedLocation!,
+                          infoWindow:
+                              const InfoWindow(title: 'Searched Location'),
+                        ),
+                    },
+                  )
+                : const Center(
+                    child: CircularProgressIndicator(),
                   ),
-              },
-            ),
           ),
         ],
       ),
