@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:moblie_app_project/googlemap.dart';
 
 import 'login.dart';
 import 'home.dart';
@@ -12,8 +13,9 @@ class MyApp extends StatelessWidget {
       title: 'Shrine',
       initialRoute: '/login',
       routes: {
+        '/map': (BuildContext context) => const GoogleTempPage(),
         '/login': (BuildContext context) => const LoginPage(),
-        '/': (BuildContext context) => const HomePage(),
+        '/': (BuildContext context) => const Home(),
       },
       theme: ThemeData.light(useMaterial3: true),
     );

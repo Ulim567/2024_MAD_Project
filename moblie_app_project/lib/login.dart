@@ -66,6 +66,12 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
               ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, "/map");
+                },
+                child: Text("MapTest"),
+              )
             ],
           ),
         ),
