@@ -71,13 +71,21 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(
             height: 20,
           ),
-          const TextField(
-            decoration: InputDecoration(
-              prefixIcon: Icon(Icons.menu),
-              suffixIcon: Icon(Icons.search),
-              border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(15))),
-              hintText: '어디로 갈까요?',
+          GestureDetector(
+            onTap: () {
+              Navigator.pushNamed(context, '/search');
+            },
+            child: const TextField(
+              enabled: false,
+              decoration: InputDecoration(
+                prefixIcon: Icon(Icons.menu),
+                suffixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(15))),
+                disabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(15))),
+                hintText: '어디로 갈까요?',
+              ),
             ),
           ),
           Expanded(child: Container()),
