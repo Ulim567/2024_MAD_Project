@@ -82,6 +82,8 @@ class _HomePageState extends State<HomePage> {
                 suffixIcon: Icon(Icons.search),
                 border: OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(15))),
+                disabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(15))),
                 hintText: '어디로 갈까요?',
               ),
             ),
