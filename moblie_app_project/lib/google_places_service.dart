@@ -9,7 +9,7 @@ class GooglePlacesService {
   // 주소 자동완성 API 호출
   Future<List<String>> getAutocomplete(String input) async {
     final url =
-        'https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$input&key=$apiKey';
+        'https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$input&language=ko&key=$apiKey';
 
     final response = await http.get(Uri.parse(url));
 
