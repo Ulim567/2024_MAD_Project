@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class FriendPage extends StatefulWidget {
   const FriendPage({super.key});
@@ -13,6 +14,9 @@ class _FriendPageState extends State<FriendPage> {
 
   @override
   Widget build(BuildContext context) {
+    final User? user = FirebaseAuth.instance.currentUser;
+    final String displayName = user?.displayName ?? 'none';
+    final String uid = user?.uid ?? 'UID not found';
     return Scaffold(
       appBar: AppBar(
         title: const Text('친구 화면'),
@@ -35,13 +39,15 @@ class _FriendPageState extends State<FriendPage> {
                   child:
                       const Icon(Icons.person, size: 30, color: Colors.purple),
                 ),
-                title: const Text(
-                  '이우림',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                // const 제거
+                title: Text(
+                  displayName,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 18),
                 ),
-                subtitle: const Text(
-                  '2usd7isjqgjgy',
-                  style: TextStyle(color: Colors.grey),
+                subtitle: Text(
+                  uid,
+                  style: const TextStyle(color: Colors.grey),
                 ),
               ),
             ),
