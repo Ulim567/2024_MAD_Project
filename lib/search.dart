@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:moblie_app_project/routeOption.dart';
 
 class SearchMapPage extends StatefulWidget {
   const SearchMapPage({super.key});
@@ -14,7 +16,6 @@ class _SearchMapPageState extends State<SearchMapPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          elevation: 20,
           shape: const Border(
             bottom: BorderSide(
               color: Colors.grey,
@@ -52,7 +53,8 @@ class _SearchMapPageState extends State<SearchMapPage> {
           itemBuilder: (BuildContext ctx, int idx) {
             return InkWell(
               onTap: () {
-                Navigator.pushNamed(context, '/routeoption');
+                Navigator.push(context,
+                    CupertinoPageRoute(builder: (c) => RouteOptionPage()));
               },
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(0, 4.5, 0, 4.5),
