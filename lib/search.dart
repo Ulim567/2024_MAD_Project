@@ -14,6 +14,7 @@ class _SearchMapPageState extends State<SearchMapPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
+          elevation: 20,
           shape: const Border(
             bottom: BorderSide(
               color: Colors.grey,
@@ -34,6 +35,8 @@ class _SearchMapPageState extends State<SearchMapPage> {
                 hintStyle: TextStyle(color: Colors.black38)),
             autofocus: true,
           ),
+          bottom:
+              const PreferredSize(preferredSize: Size(10, 10), child: Column()),
           actions: [
             IconButton(
               icon: const Icon(Icons.close),
