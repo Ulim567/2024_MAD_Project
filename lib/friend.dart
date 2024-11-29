@@ -8,8 +8,82 @@ class FriendPage extends StatefulWidget {
 }
 
 class _FriendPageState extends State<FriendPage> {
+  final List<String> friends = ['이향우', '이향우', '이향우', '이향우', '이향우'];
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('친구 화면'),
+        centerTitle: true,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            // Profile card
+            Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              elevation: 4,
+              child: ListTile(
+                leading: CircleAvatar(
+                  radius: 28,
+                  backgroundColor: Colors.purple.shade100,
+                  child:
+                      const Icon(Icons.person, size: 30, color: Colors.purple),
+                ),
+                title: const Text(
+                  '이우림',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                ),
+                subtitle: const Text(
+                  '2usd7isjqgjgy',
+                  style: TextStyle(color: Colors.grey),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            // Search bar
+            TextField(
+              decoration: InputDecoration(
+                prefixIcon: const Icon(Icons.search),
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.add),
+                  onPressed: () {
+                    // Add functionality here
+                  },
+                ),
+                hintText: '이름으로 친구를 검색해보세요',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            // Friends list
+            Expanded(
+              child: ListView.builder(
+                itemCount: friends.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    leading: const Icon(Icons.star, color: Colors.grey),
+                    title: Text(friends[index]),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.delete, color: Colors.grey),
+                      onPressed: () {
+                        setState(() {
+                          friends.removeAt(index);
+                        });
+                      },
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
