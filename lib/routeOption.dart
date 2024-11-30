@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'confirmRouteWidget.dart';
 import 'selectTimeWidget.dart';
+import 'selectFriendWidget.dart';
 
 class RouteOptionPage extends StatefulWidget {
   const RouteOptionPage({super.key});
@@ -12,7 +13,11 @@ class RouteOptionPage extends StatefulWidget {
 
 class _RouteOptionPageState extends State<RouteOptionPage> {
   int index = 0;
-  List<Widget> pages = [const ConfirmRouteWidget(), const SelectTimeWidget()];
+  List<Widget> pages = [
+    const ConfirmRouteWidget(),
+    const SelectTimeWidget(),
+    const SelectFriendWidget()
+  ];
 
   @override
   Widget build(BuildContext context) {
