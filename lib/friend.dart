@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class FriendPage extends StatefulWidget {
   const FriendPage({super.key});
@@ -18,12 +19,8 @@ class _FriendPageState extends State<FriendPage> {
     final String displayName = user?.displayName ?? 'none';
     final String uid = user?.uid ?? 'UID not found';
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('친구 화면'),
-        centerTitle: true,
-      ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.fromLTRB(16, 50, 16, 16),
         child: Column(
           children: [
             // Profile card
@@ -32,22 +29,70 @@ class _FriendPageState extends State<FriendPage> {
                 borderRadius: BorderRadius.circular(16),
               ),
               elevation: 4,
-              child: ListTile(
-                leading: CircleAvatar(
-                  radius: 28,
-                  backgroundColor: Colors.purple.shade100,
-                  child:
-                      const Icon(Icons.person, size: 30, color: Colors.purple),
-                ),
-                // const 제거
-                title: Text(
-                  displayName,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 18),
-                ),
-                subtitle: Text(
-                  uid,
-                  style: const TextStyle(color: Colors.grey),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 20, 8, 20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 28,
+                          backgroundColor: Colors.purple.shade100,
+                          child: Icon(Icons.person,
+                              size: 30, color: Colors.purple),
+                        ),
+                        const SizedBox(width: 16),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              displayName,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                              ),
+                            ),
+                            SizedBox(
+                              height: 3,
+                            ),
+                            Text(
+                              uid,
+                              style: const TextStyle(
+                                color: Colors.grey,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      width: 20,
+                    ),
+                    IconButton(
+                        icon: const Icon(
+                          Icons.logout,
+                          color: Colors.red,
+                        ),
+                        onPressed: () async {
+                          try {
+                            // Firebase 로그아웃
+                            await FirebaseAuth.instance.signOut();
+
+                            // Google Sign-In 로그아웃
+                            final GoogleSignIn googleSignIn = GoogleSignIn();
+                            await googleSignIn.signOut();
+
+                            // 로그아웃 성공 메시지 출력 (옵션)
+                            print("로그아웃 성공");
+                            Navigator.pushNamed(context, "/login");
+                          } catch (e) {
+                            // 로그아웃 실패 메시지 출력
+                            print("로그아웃 실패: $e");
+                          }
+                        }),
+                  ],
                 ),
               ),
             ),
