@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'confirmRouteWidget.dart';
 import 'selectTimeWidget.dart';
 import 'selectFriendWidget.dart';
+import 'finalConfirmWidget.dart';
 
 class RouteOptionPage extends StatefulWidget {
   final String address;
@@ -24,6 +25,8 @@ class _RouteOptionPageState extends State<RouteOptionPage> {
   int index = 0;
   List<Widget> pages = [];
 
+  String appBarTitle = "";
+
   @override
   void initState() {
     super.initState();
@@ -34,16 +37,27 @@ class _RouteOptionPageState extends State<RouteOptionPage> {
         longitude: widget.longitude,
       ),
       const SelectTimeWidget(),
-      const SelectFriendWidget()
+      const SelectFriendWidget(),
+      const FinalconfirmWidget(),
     ];
   }
 
   @override
   Widget build(BuildContext context) {
+    if (index == 0) {
+      appBarTitle = "위치 확인";
+    } else if (index == 1) {
+      appBarTitle = "타이머 설정";
+    } else if (index == 2) {
+      appBarTitle = "친구 설정";
+    } else if (index == 3) {
+      appBarTitle = "최종 확인";
+    }
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        title: const Text("위치 확인"),
+        title: Text(appBarTitle),
         centerTitle: true,
         shape: const Border(
           bottom: BorderSide(
@@ -74,7 +88,7 @@ class _RouteOptionPageState extends State<RouteOptionPage> {
                           });
                         }
                       },
-                      child: const Text("돌아가기")),
+                      child: const Text("뒤로")),
                   ElevatedButton(
                       onPressed: () {
                         if (index == pages.length - 1) {
@@ -84,7 +98,9 @@ class _RouteOptionPageState extends State<RouteOptionPage> {
                           });
                         }
                       },
-                      child: const Text("다음"))
+                      child: (index == pages.length - 1)
+                          ? const Text("시작하기")
+                          : const Text("다음"))
                 ],
               ),
             )
