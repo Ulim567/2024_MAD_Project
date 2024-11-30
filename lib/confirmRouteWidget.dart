@@ -1,10 +1,35 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
 
-class ConfirmRouteWidget extends StatelessWidget {
-  const ConfirmRouteWidget({super.key});
+import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+
+class ConfirmRouteWidget extends StatefulWidget {
+  final String address;
+  final double latitude;
+  final double longitude;
+
+  const ConfirmRouteWidget({
+    super.key,
+    required this.address,
+    required this.latitude,
+    required this.longitude,
+  });
 
   @override
+  State<ConfirmRouteWidget> createState() => _ConfirmRouteWidgetState();
+}
+
+class _ConfirmRouteWidgetState extends State<ConfirmRouteWidget> {
+  @override
   Widget build(BuildContext context) {
+    // GoogleMapController를 관리할 변수
+    final Completer<GoogleMapController> _controller = Completer();
+
+    CameraPosition initialPosition = CameraPosition(
+      target: LatLng(widget.latitude, widget.longitude),
+      zoom: 17,
+    );
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -18,26 +43,37 @@ class ConfirmRouteWidget extends StatelessWidget {
         const SizedBox(
           height: 35,
         ),
-        const Row(
+        Row(
           children: [
             const Icon(
               Icons.location_on_outlined,
               color: Colors.black54,
             ),
-            const Text(
-              "포항시 북구 한동로 588 한동대학교",
-              style: TextStyle(fontSize: 18),
+            Text(
+              widget.address,
+              style: const TextStyle(fontSize: 18),
             ),
           ],
         ),
         const SizedBox(
           height: 10,
         ),
-        Center(
-          child: Container(
-            width: 350,
-            height: 350,
-            color: Colors.black45,
+        // Google Maps 위젯
+        SizedBox(
+          height: 300,
+          width: double.infinity,
+          child: GoogleMap(
+            initialCameraPosition: initialPosition,
+            onMapCreated: (GoogleMapController controller) {
+              _controller.complete(controller);
+            },
+            markers: {
+              Marker(
+                markerId: MarkerId('destination'),
+                position: LatLng(widget.latitude, widget.longitude),
+                infoWindow: InfoWindow(title: widget.address),
+              ),
+            },
           ),
         ),
       ],

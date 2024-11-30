@@ -5,7 +5,16 @@ import 'selectTimeWidget.dart';
 import 'selectFriendWidget.dart';
 
 class RouteOptionPage extends StatefulWidget {
-  const RouteOptionPage({super.key});
+  final String address;
+  final double latitude;
+  final double longitude;
+
+  const RouteOptionPage({
+    super.key,
+    required this.address,
+    required this.latitude,
+    required this.longitude,
+  });
 
   @override
   State<RouteOptionPage> createState() => _RouteOptionPageState();
@@ -13,11 +22,21 @@ class RouteOptionPage extends StatefulWidget {
 
 class _RouteOptionPageState extends State<RouteOptionPage> {
   int index = 0;
-  List<Widget> pages = [
-    const ConfirmRouteWidget(),
-    const SelectTimeWidget(),
-    const SelectFriendWidget()
-  ];
+  List<Widget> pages = [];
+
+  @override
+  void initState() {
+    super.initState();
+    pages = [
+      ConfirmRouteWidget(
+        address: widget.address,
+        latitude: widget.latitude,
+        longitude: widget.longitude,
+      ),
+      const SelectTimeWidget(),
+      const SelectFriendWidget()
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
