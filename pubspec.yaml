@@ -46,6 +46,7 @@ dependencies:
   geocoding: ^3.0.0
   flutter_dotenv: ^5.2.1
   animations: ^2.0.11
+  wheel_picker: ^0.1.1
 
 dev_dependencies:
   flutter_test:
