@@ -45,6 +45,7 @@ dependencies:
   http: ^1.2.2
   geocoding: ^3.0.0
   flutter_dotenv: ^5.2.1
+  animations: ^2.0.11
 
 dev_dependencies:
   flutter_test:

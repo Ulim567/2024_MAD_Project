@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:moblie_app_project/googlemap.dart';
+import 'package:moblie_app_project/routeOption.dart';
 
 import 'login.dart';
 import 'home.dart';
@@ -15,6 +16,7 @@ class MyApp extends StatelessWidget {
       initialRoute: '/login',
       routes: {
         '/map': (BuildContext context) => const GoogleTempPage(),
+        '/routeoption': (BuildContext context) => const RouteOptionPage(),
         '/login': (BuildContext context) => const LoginPage(),
         '/search': (BuildContext context) => const SearchMapPage(),
         '/': (BuildContext context) => const Home(),

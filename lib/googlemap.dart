@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart'; // geolocator 임포트
+import 'package:moblie_app_project/tmap_directions_service.dart'; // TmapDirectionsService 임포트
 import 'google_places_service.dart';
 
 class GoogleTempPage extends StatefulWidget {
@@ -16,25 +17,42 @@ class _GoogleTempPageState extends State<GoogleTempPage> {
   TextEditingController _searchController = TextEditingController();
   List<String> _addressSuggestions = [];
   LatLng? _searchedLocation;
-  bool _isLocationLoaded = false;
+  bool _isLocationLoaded = true;
 
   final GooglePlacesService _placesService = GooglePlacesService();
+  List<LatLng> _polylinePoints = [];
+  final TmapDirectionsService _directionsService =
+      TmapDirectionsService(); // TmapDirectionsService 사용
 
   @override
   void initState() {
     super.initState();
-    _getLocation(); // 현재 위치 가져오기
+  }
+
+  Future<void> _getRoute() async {
+    if (_searchedLocation == null) return;
+
+    // TmapDirectionsService를 사용하여 경로를 가져옵니다.
+    final points = await _directionsService.getDirections(
+      startLat: _currentLatLng.latitude,
+      startLng: _currentLatLng.longitude,
+      endLat: _searchedLocation!.latitude,
+      endLng: _searchedLocation!.longitude,
+    );
+
+    if (points != null) {
+      setState(() {
+        _polylinePoints = points; // 경로 정보 업데이트
+      });
+    }
   }
 
   Future<void> _getLocation() async {
-    // 현재 권한 상태 확인
     LocationPermission permission = await Geolocator.checkPermission();
 
-    // 권한 요청 및 상태 확인
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        // 권한이 거부된 경우
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("위치 권한이 필요합니다.")),
         );
@@ -43,7 +61,6 @@ class _GoogleTempPageState extends State<GoogleTempPage> {
     }
 
     if (permission == LocationPermission.deniedForever) {
-      // 권한이 영구적으로 거부된 경우
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("앱 설정에서 위치 권한을 활성화해주세요."),
@@ -51,12 +68,11 @@ class _GoogleTempPageState extends State<GoogleTempPage> {
       );
       return;
     }
-    // 권한이 허용된 경우 위치 가져오기
+
     Position currentPosition = await Geolocator.getCurrentPosition(
       desiredAccuracy: LocationAccuracy.high,
     );
 
-    // 현재 위치 업데이트
     setState(() {
       _currentLatLng =
           LatLng(currentPosition.latitude, currentPosition.longitude);
@@ -68,7 +84,6 @@ class _GoogleTempPageState extends State<GoogleTempPage> {
     mapController = controller;
   }
 
-  // 주소 검색 시 자동완성 결과 얻기
   void _searchLocation(String input) async {
     final suggestions = await _placesService.getAutocomplete(input);
 
@@ -77,7 +92,6 @@ class _GoogleTempPageState extends State<GoogleTempPage> {
     });
   }
 
-  // 자동완성 리스트에서 선택된 주소로 지도 업데이트
   void _onAddressSelected(String address) async {
     final latLng = await _placesService.getLatLngFromAddress(address);
 
@@ -111,7 +125,7 @@ class _GoogleTempPageState extends State<GoogleTempPage> {
                     _searchLocation(_searchController.text);
                   },
                 ),
-                border: OutlineInputBorder(),
+                border: const OutlineInputBorder(),
               ),
             ),
           ),
@@ -138,6 +152,13 @@ class _GoogleTempPageState extends State<GoogleTempPage> {
                       zoom: 11.0,
                     ),
                     markers: {
+                      Marker(
+                        markerId: const MarkerId('initialLocation'),
+                        position: _currentLatLng, // 초기 위치
+                        icon: BitmapDescriptor.defaultMarkerWithHue(
+                            BitmapDescriptor.hueGreen),
+                        infoWindow: const InfoWindow(title: 'Initial Location'),
+                      ),
                       if (_searchedLocation != null)
                         Marker(
                           markerId: const MarkerId('searchedLocation'),
@@ -146,12 +167,26 @@ class _GoogleTempPageState extends State<GoogleTempPage> {
                               const InfoWindow(title: 'Searched Location'),
                         ),
                     },
+                    polylines: {
+                      if (_polylinePoints.isNotEmpty)
+                        Polyline(
+                          polylineId: const PolylineId('route'),
+                          color: Colors.blue,
+                          width: 5,
+                          points: _polylinePoints,
+                        ),
+                    },
                   )
                 : const Center(
                     child: CircularProgressIndicator(),
                   ),
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _searchedLocation != null ? _getRoute : null,
+        backgroundColor: _searchedLocation != null ? Colors.blue : Colors.grey,
+        child: const Icon(Icons.directions),
       ),
     );
   }
