@@ -98,7 +98,12 @@ class _SearchMapPageState extends State<SearchMapPage> {
                   onTap: () {
                     Navigator.push(
                       context,
-                      CupertinoPageRoute(builder: (c) => RouteOptionPage()),
+                      CupertinoPageRoute(
+                          builder: (c) => RouteOptionPage(
+                                address: address,
+                                latitude: result['lat'],
+                                longitude: result['lng'],
+                              )),
                     );
                   },
                   child: Padding(
