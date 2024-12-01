@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:moblie_app_project/routeOption.dart';
-import 'package:moblie_app_project/tmap_search_service.dart'; // Timer를 사용하기 위해 import
+import 'package:moblie_app_project/routeoption/routeOption.dart';
+import 'package:moblie_app_project/api/tmap_search_service.dart'; // Timer를 사용하기 위해 import
 import 'dart:async';
 
 class SearchMapPage extends StatefulWidget {

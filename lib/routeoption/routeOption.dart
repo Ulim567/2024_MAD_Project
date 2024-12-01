@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import 'confirmRouteWidget.dart';
-import 'selectTimeWidget.dart';
-import 'selectFriendWidget.dart';
-import 'finalConfirmWidget.dart';
+import 'widgets/confirmRouteWidget.dart';
+import 'widgets/selectTimeWidget.dart';
+import 'widgets/selectFriendWidget.dart';
+import 'widgets/finalConfirmWidget.dart';
 
 class RouteOptionPage extends StatefulWidget {
   final String address;
