@@ -35,9 +35,30 @@ class DatabaseService with ChangeNotifier {
   Future<Map<String, dynamic>?> getUserData(String uid) async {
     try {
       DocumentSnapshot snapshot = await _userCollection.doc(uid).get();
-      return snapshot.data() as Map<String, dynamic>?;
+
+      // snapshot.data()가 null일 경우, 빈 Map을 반환하거나 적절한 처리를 해줍니다.
+      if (snapshot.exists && snapshot.data() != null) {
+        return {'uid': uid, ...snapshot.data() as Map<String, dynamic>};
+      } else {
+        return null; // 데이터가 없을 경우 null 반환
+      }
     } catch (e) {
       if (kDebugMode) print("Error getting user data: $e");
+      return null;
+    }
+  }
+
+  Future<String?> getUserNameByUid(String uid) async {
+    try {
+      DocumentSnapshot snapshot = await _userCollection.doc(uid).get();
+
+      if (snapshot.exists && snapshot.data() != null) {
+        return snapshot.get('name'); // 사용자 이름 반환
+      } else {
+        return null; // 데이터가 없을 경우 null 반환
+      }
+    } catch (e) {
+      if (kDebugMode) print("Error getting user name by UID: $e");
       return null;
     }
   }
@@ -54,6 +75,7 @@ class DatabaseService with ChangeNotifier {
     });
   }
 
+  // 친구 요청 보내기
   Future<void> sendFriendRequest(
       String targetUid, String currentUserUid) async {
     try {
@@ -66,6 +88,48 @@ class DatabaseService with ChangeNotifier {
         print("Friend request sent to $targetUid from $currentUserUid");
     } catch (e) {
       if (kDebugMode) print("Error sending friend request: $e");
+    }
+  }
+
+  // 친구 요청 수락하기
+  Future<void> acceptFriendRequest(
+      String targetUid, String currentUserUid) async {
+    try {
+      // 요청을 수락하고, 친구 목록에 추가
+      await _userCollection.doc(currentUserUid).update({
+        'friend': FieldValue.arrayUnion([targetUid]),
+        'request': FieldValue.arrayRemove([targetUid]),
+      });
+
+      await _userCollection.doc(targetUid).update({
+        'friend': FieldValue.arrayUnion([currentUserUid]),
+        'request': FieldValue.arrayRemove([currentUserUid]),
+      });
+
+      if (kDebugMode)
+        print("Friend request accepted from $targetUid to $currentUserUid");
+    } catch (e) {
+      if (kDebugMode) print("Error accepting friend request: $e");
+    }
+  }
+
+  // 친구 요청 거절하기
+  Future<void> rejectFriendRequest(
+      String targetUid, String currentUserUid) async {
+    try {
+      // 요청을 거절하고, 요청 목록에서 제거
+      await _userCollection.doc(currentUserUid).update({
+        'request': FieldValue.arrayRemove([targetUid]),
+      });
+
+      await _userCollection.doc(targetUid).update({
+        'request': FieldValue.arrayRemove([currentUserUid]),
+      });
+
+      if (kDebugMode)
+        print("Friend request rejected from $targetUid to $currentUserUid");
+    } catch (e) {
+      if (kDebugMode) print("Error rejecting friend request: $e");
     }
   }
 }

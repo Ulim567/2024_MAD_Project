@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:moblie_app_project/addfriend/page.dart';
+import 'package:moblie_app_project/provider/dbservice.dart';
 
 class FriendPage extends StatefulWidget {
   const FriendPage({super.key});
@@ -11,14 +12,38 @@ class FriendPage extends StatefulWidget {
 }
 
 class _FriendPageState extends State<FriendPage> {
-  final List<String> friends = ['이향우', '이향우', '이향우', '이향우', '이향우'];
-  final List<String> friendRequests = ['이향우'];
+  final DatabaseService _databaseService = DatabaseService();
+  List<String> friends = [];
+  List<String> friendRequests = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  // getUserData를 호출하여 사용자 데이터 로드
+  Future<void> _loadUserData() async {
+    final User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final String uid = user.uid;
+      final userData = await _databaseService.getUserData(uid);
+      if (userData != null) {
+        setState(() {
+          // 친구 목록과 친구 요청 목록 업데이트
+          friends = List<String>.from(userData['friend'] ?? []);
+          friendRequests = List<String>.from(userData['request'] ?? []);
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final User? user = FirebaseAuth.instance.currentUser;
     final String displayName = user?.displayName ?? 'none';
     final String uid = user?.uid ?? 'UID not found';
+
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.fromLTRB(16, 50, 16, 16),
@@ -68,31 +93,30 @@ class _FriendPageState extends State<FriendPage> {
                         ),
                       ],
                     ),
-                    SizedBox(
-                      width: 20,
-                    ),
+                    SizedBox(width: 20),
                     IconButton(
-                        icon: const Icon(
-                          Icons.logout,
-                          color: Colors.red,
-                        ),
-                        onPressed: () async {
-                          try {
-                            // Firebase 로그아웃
-                            await FirebaseAuth.instance.signOut();
+                      icon: const Icon(
+                        Icons.logout,
+                        color: Colors.red,
+                      ),
+                      onPressed: () async {
+                        try {
+                          // Firebase 로그아웃
+                          await FirebaseAuth.instance.signOut();
 
-                            // Google Sign-In 로그아웃
-                            final GoogleSignIn googleSignIn = GoogleSignIn();
-                            await googleSignIn.signOut();
+                          // Google Sign-In 로그아웃
+                          final GoogleSignIn googleSignIn = GoogleSignIn();
+                          await googleSignIn.signOut();
 
-                            // 로그아웃 성공 메시지 출력 (옵션)
-                            print("로그아웃 성공");
-                            Navigator.pushNamed(context, "/login");
-                          } catch (e) {
-                            // 로그아웃 실패 메시지 출력
-                            print("로그아웃 실패: $e");
-                          }
-                        }),
+                          // 로그아웃 성공 메시지 출력 (옵션)
+                          print("로그아웃 성공");
+                          Navigator.pushNamed(context, "/login");
+                        } catch (e) {
+                          // 로그아웃 실패 메시지 출력
+                          print("로그아웃 실패: $e");
+                        }
+                      },
+                    ),
                   ],
                 ),
               ),
@@ -181,20 +205,38 @@ class _FriendPageState extends State<FriendPage> {
                   children: [
                     IconButton(
                       icon: const Icon(Icons.check, color: Colors.green),
-                      onPressed: () {
+                      onPressed: () async {
+                        // 친구 요청 수락
+                        final String targetUid = friendRequests[index];
+                        final String currentUserUid =
+                            FirebaseAuth.instance.currentUser!.uid;
+
+                        await _databaseService.acceptFriendRequest(
+                            targetUid, currentUserUid);
+
                         setState(() {
                           friends.add(friendRequests[index]);
                           friendRequests.removeAt(index);
                         });
+
                         Navigator.pop(context); // 모달 닫기
                       },
                     ),
                     IconButton(
                       icon: const Icon(Icons.delete, color: Colors.red),
-                      onPressed: () {
+                      onPressed: () async {
+                        // 친구 요청 거절
+                        final String targetUid = friendRequests[index];
+                        final String currentUserUid =
+                            FirebaseAuth.instance.currentUser!.uid;
+
+                        await _databaseService.rejectFriendRequest(
+                            targetUid, currentUserUid);
+
                         setState(() {
                           friendRequests.removeAt(index);
                         });
+
                         Navigator.pop(context); // 모달 닫기
                       },
                     ),
