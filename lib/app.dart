@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:moblie_app_project/googlemap.dart';
 import 'package:moblie_app_project/routeOption.dart';
 
 import 'login.dart';
-import 'home.dart';
+import 'home/home.dart';
 import 'search.dart';
 
 class MyApp extends StatelessWidget {
@@ -15,7 +14,7 @@ class MyApp extends StatelessWidget {
       title: 'Shrine',
       initialRoute: '/login',
       routes: {
-        '/map': (BuildContext context) => const GoogleTempPage(),
+        // '/map': (BuildContext context) => const GoogleTempPage(),
         '/routeoption': (BuildContext context) {
           final address = "포항시 북구 한동로 588 한동대학교";
           final latitude = 36.0322; // 예시 위도

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'friend.dart';
-import 'currentState.dart';
+import 'widgets/friend.dart';
+import '../currentState.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
