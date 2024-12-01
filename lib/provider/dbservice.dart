@@ -35,7 +35,13 @@ class DatabaseService with ChangeNotifier {
   Future<Map<String, dynamic>?> getUserData(String uid) async {
     try {
       DocumentSnapshot snapshot = await _userCollection.doc(uid).get();
-      return snapshot.data() as Map<String, dynamic>?;
+
+      // snapshot.data()가 null일 경우, 빈 Map을 반환하거나 적절한 처리를 해줍니다.
+      if (snapshot.exists && snapshot.data() != null) {
+        return {'uid': uid, ...snapshot.data() as Map<String, dynamic>};
+      } else {
+        return null; // 데이터가 없을 경우 null 반환
+      }
     } catch (e) {
       if (kDebugMode) print("Error getting user data: $e");
       return null;
