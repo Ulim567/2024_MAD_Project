@@ -4,6 +4,8 @@ import 'package:moblie_app_project/routeoption/routeOption.dart';
 import 'login/login.dart';
 import 'home/home.dart';
 import 'search/search.dart';
+import 'tracking/tracking.dart';
+import 'tracking/finishTracking.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -26,6 +28,8 @@ class MyApp extends StatelessWidget {
             longitude: longitude,
           );
         },
+        '/tracking': (BuildContext context) => const TrackingPage(),
+        '/finishTracking': (BuildContext context) => const FinishtrackingPage(),
         '/login': (BuildContext context) => const LoginPage(),
         '/search': (BuildContext context) => const SearchMapPage(),
         '/': (BuildContext context) => const Home(),

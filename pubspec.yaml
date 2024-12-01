@@ -47,6 +47,9 @@ dependencies:
   flutter_dotenv: ^5.2.1
   animations: ^2.0.11
   wheel_picker: ^0.1.1
+  stop_watch_timer: ^3.2.1
+  slide_countdown: ^2.0.2
+  flutter_expandable_fab: ^2.3.0
 
 dev_dependencies:
   flutter_test:

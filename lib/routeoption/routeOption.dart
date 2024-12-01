@@ -92,6 +92,7 @@ class _RouteOptionPageState extends State<RouteOptionPage> {
                   ElevatedButton(
                       onPressed: () {
                         if (index == pages.length - 1) {
+                          Navigator.pushNamed(context, '/tracking');
                         } else {
                           setState(() {
                             index++;
