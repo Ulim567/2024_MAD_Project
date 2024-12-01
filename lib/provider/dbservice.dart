@@ -48,6 +48,19 @@ class DatabaseService with ChangeNotifier {
     }
   }
 
+  Stream<Map<String, dynamic>?> getUserDataStream(String uid) {
+    return _userCollection.doc(uid).snapshots().map((snapshot) {
+      // snapshot이 존재하고, 데이터가 null이 아닐 경우
+      if (snapshot.exists && snapshot.data() != null) {
+        return {'uid': uid, ...snapshot.data() as Map<String, dynamic>};
+      } else {
+        return null; // 데이터가 없을 경우 null 반환
+      }
+    }).handleError((e) {
+      if (kDebugMode) print("Error getting user data stream: $e");
+    });
+  }
+
   Future<String?> getUserNameByUid(String uid) async {
     try {
       DocumentSnapshot snapshot = await _userCollection.doc(uid).get();
