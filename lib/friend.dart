@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:moblie_app_project/addfriend/page.dart';
 
 class FriendPage extends StatefulWidget {
   const FriendPage({super.key});
@@ -60,7 +61,7 @@ class _FriendPageState extends State<FriendPage> {
                               uid,
                               style: const TextStyle(
                                 color: Colors.grey,
-                                fontSize: 12,
+                                fontSize: 10,
                               ),
                             ),
                           ],
@@ -103,7 +104,13 @@ class _FriendPageState extends State<FriendPage> {
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: IconButton(
                   icon: const Icon(Icons.add), // Show bottom sheet
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const AddFriendPage()),
+                    );
+                  },
                 ),
                 hintText: '이름으로 친구를 검색해보세요',
                 border: OutlineInputBorder(
