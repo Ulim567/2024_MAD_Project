@@ -53,4 +53,19 @@ class DatabaseService with ChangeNotifier {
           .toList();
     });
   }
+
+  Future<void> sendFriendRequest(
+      String targetUid, String currentUserUid) async {
+    try {
+      // 대상 사용자의 요청 배열에 로그인한 사용자의 UID 추가
+      await _userCollection.doc(targetUid).update({
+        'request': FieldValue.arrayUnion([currentUserUid]),
+      });
+
+      if (kDebugMode)
+        print("Friend request sent to $targetUid from $currentUserUid");
+    } catch (e) {
+      if (kDebugMode) print("Error sending friend request: $e");
+    }
+  }
 }
