@@ -76,6 +76,21 @@ class DatabaseService with ChangeNotifier {
     }
   }
 
+  Stream<List<Map<String, dynamic>>> getUserList() {
+    return FirebaseFirestore.instance
+        .collection('users')
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.map((doc) {
+        return {
+          'uid': doc.id,
+          'name': doc['name'],
+          'email': doc['email'],
+        };
+      }).toList();
+    });
+  }
+
   // 모든 사용자 데이터 스트림
   Stream<List<Map<String, dynamic>>> getAllUsersStream() {
     return _userCollection.snapshots().map((snapshot) {

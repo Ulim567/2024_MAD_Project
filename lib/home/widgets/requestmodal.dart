@@ -3,13 +3,15 @@ import 'package:moblie_app_project/provider/dbservice.dart';
 
 class FriendRequestsModal extends StatelessWidget {
   final String currentUserUid;
+  final List<String> friendRequests;
   final DatabaseService databaseService;
 
   const FriendRequestsModal({
-    Key? key,
+    super.key,
     required this.currentUserUid,
+    required this.friendRequests,
     required this.databaseService,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -23,8 +25,8 @@ class FriendRequestsModal extends StatelessWidget {
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
-          StreamBuilder<Map<String, dynamic>?>(
-            stream: databaseService.getUserDataStream(currentUserUid),
+          StreamBuilder<List<Map<String, dynamic>>>(
+            stream: databaseService.getUserList(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
@@ -36,24 +38,30 @@ class FriendRequestsModal extends StatelessWidget {
                 );
               }
 
-              final userData = snapshot.data;
-              if (userData == null || userData['request'] == null) {
+              final userList = snapshot.data;
+              if (userList == null || userList.isEmpty) {
                 return const Center(
-                  child: Text("친구 요청이 없습니다.",
+                  child: Text("사용자 데이터가 없습니다.",
                       style: TextStyle(color: Colors.grey)),
                 );
               }
-
-              final List<String> friendRequests =
-                  List<String>.from(userData['request']);
 
               return ListView.builder(
                 shrinkWrap: true,
                 itemCount: friendRequests.length,
                 itemBuilder: (context, index) {
                   final targetUid = friendRequests[index];
+                  final targetUser = userList.firstWhere(
+                    (user) => user['uid'] == targetUid,
+                    orElse: () => {},
+                  );
+
+                  final targetUserName = targetUser['name'] ?? '이름 없음';
+                  final targetUserEmail = targetUser['email'] ?? '이메일 없음';
+
                   return ListTile(
-                    title: Text(targetUid),
+                    title: Text(targetUserName),
+                    subtitle: Text(targetUserEmail),
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -63,7 +71,6 @@ class FriendRequestsModal extends StatelessWidget {
                             await databaseService.acceptFriendRequest(
                                 targetUid, currentUserUid);
 
-                            // 요청 수락 후 모달 닫기
                             Navigator.pop(context);
                           },
                         ),
@@ -73,7 +80,6 @@ class FriendRequestsModal extends StatelessWidget {
                             await databaseService.rejectFriendRequest(
                                 targetUid, currentUserUid);
 
-                            // 요청 거절 후 모달 닫기
                             Navigator.pop(context);
                           },
                         ),

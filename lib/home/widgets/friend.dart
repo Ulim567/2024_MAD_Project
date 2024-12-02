@@ -188,6 +188,7 @@ class _FriendPageState extends State<FriendPage> {
             ),
             builder: (context) => FriendRequestsModal(
               currentUserUid: FirebaseAuth.instance.currentUser!.uid,
+              friendRequests: friendRequests,
               databaseService: _databaseService,
             ),
           );
