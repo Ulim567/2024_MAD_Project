@@ -200,11 +200,15 @@ class _FriendPageState extends State<FriendPage> {
                             trailing: IconButton(
                               icon:
                                   const Icon(Icons.delete, color: Colors.grey),
-                              onPressed: () {
-                                setState(() {
-                                  // 친구 삭제 로직
-                                  friends.removeAt(index);
-                                });
+                              onPressed: () async {
+                                if (friends.isNotEmpty &&
+                                    index < friends.length) {
+                                  // 친구 삭제 로직 실행
+                                  await _databaseService.deleteFriend(
+                                      uid, friends[index]);
+                                } else {
+                                  print("친구 목록이 비어 있거나 잘못된 인덱스입니다.");
+                                }
                               },
                             ),
                           );

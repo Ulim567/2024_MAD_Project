@@ -176,4 +176,26 @@ class DatabaseService with ChangeNotifier {
       if (kDebugMode) print("Error rejecting friend request: $e");
     }
   }
+
+  Future<void> deleteFriend(String currentUserUid, String friendUid) async {
+    try {
+      // 로그인한 사용자의 친구 목록에서 friendUid 삭제
+      await _userCollection.doc(currentUserUid).update({
+        'friend': FieldValue.arrayRemove([friendUid]),
+      });
+
+      // 친구 사용자의 친구 목록에서 currentUserUid 삭제
+      await _userCollection.doc(friendUid).update({
+        'friend': FieldValue.arrayRemove([currentUserUid]),
+      });
+
+      if (kDebugMode) {
+        print("Friend $friendUid removed from $currentUserUid's friend list");
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print("Error removing friend: $e");
+      }
+    }
+  }
 }
