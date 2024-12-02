@@ -16,27 +16,27 @@ class _FriendPageState extends State<FriendPage> {
   List<String> friends = [];
   List<String> friendRequests = [];
 
-  @override
-  void initState() {
-    super.initState();
-    _loadUserData();
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _loadUserData();
+  // }
 
-  // getUserData를 호출하여 사용자 데이터 로드
-  Future<void> _loadUserData() async {
-    final User? user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      final String uid = user.uid;
-      final userData = await _databaseService.getUserData(uid);
-      if (userData != null) {
-        setState(() {
-          // 친구 목록과 친구 요청 목록 업데이트
-          friends = List<String>.from(userData['friend'] ?? []);
-          friendRequests = List<String>.from(userData['request'] ?? []);
-        });
-      }
-    }
-  }
+  // // getUserData를 호출하여 사용자 데이터 로드
+  // Future<void> _loadUserData() async {
+  //   final User? user = FirebaseAuth.instance.currentUser;
+  //   if (user != null) {
+  //     final String uid = user.uid;
+  //     final userData = await _databaseService.getUserData(uid);
+  //     if (userData != null) {
+  //       setState(() {
+  //         // 친구 목록과 친구 요청 목록 업데이트
+  //         friends = List<String>.from(userData['friend'] ?? []);
+  //         friendRequests = List<String>.from(userData['request'] ?? []);
+  //       });
+  //     }
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -145,20 +145,50 @@ class _FriendPageState extends State<FriendPage> {
             const SizedBox(height: 16),
             // Friends list
             Expanded(
-              child: ListView.builder(
-                itemCount: friends.length,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    leading: const Icon(Icons.star, color: Colors.grey),
-                    title: Text(friends[index]),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.delete, color: Colors.grey),
-                      onPressed: () {
-                        setState(() {
-                          friends.removeAt(index);
-                        });
-                      },
-                    ),
+              child: StreamBuilder<Map<String, dynamic>?>(
+                stream: _databaseService.getUserDataStream(uid), // Stream 구독
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  }
+
+                  if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  }
+
+                  final userData = snapshot.data;
+                  if (userData == null) {
+                    return Center(child: Text('사용자 데이터 없음'));
+                  }
+
+                  friends = List<String>.from(userData['friend'] ?? []);
+                  friendRequests = List<String>.from(userData['request'] ?? []);
+
+                  return Column(
+                    children: [
+                      // Friends list
+                      Expanded(
+                        child: ListView.builder(
+                          itemCount: friends.length,
+                          itemBuilder: (context, index) {
+                            return ListTile(
+                              leading:
+                                  const Icon(Icons.star, color: Colors.grey),
+                              title: Text(friends[index]),
+                              trailing: IconButton(
+                                icon: const Icon(Icons.delete,
+                                    color: Colors.grey),
+                                onPressed: () {
+                                  setState(() {
+                                    // 친구 삭제 로직 추가
+                                  });
+                                },
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
                   );
                 },
               ),
