@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:moblie_app_project/addfriend/page.dart';
+import 'package:moblie_app_project/home/widgets/requestmodal.dart';
 import 'package:moblie_app_project/provider/dbservice.dart';
 
 class FriendPage extends StatefulWidget {
@@ -16,33 +17,24 @@ class _FriendPageState extends State<FriendPage> {
   List<String> friends = [];
   List<String> friendRequests = [];
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   _loadUserData();
-  // }
-
-  // // getUserData를 호출하여 사용자 데이터 로드
-  // Future<void> _loadUserData() async {
-  //   final User? user = FirebaseAuth.instance.currentUser;
-  //   if (user != null) {
-  //     final String uid = user.uid;
-  //     final userData = await _databaseService.getUserData(uid);
-  //     if (userData != null) {
-  //       setState(() {
-  //         // 친구 목록과 친구 요청 목록 업데이트
-  //         friends = List<String>.from(userData['friend'] ?? []);
-  //         friendRequests = List<String>.from(userData['request'] ?? []);
-  //       });
-  //     }
-  //   }
-  // }
-
   @override
   Widget build(BuildContext context) {
     final User? user = FirebaseAuth.instance.currentUser;
-    final String displayName = user?.displayName ?? 'none';
-    final String uid = user?.uid ?? 'UID not found';
+
+    // 사용자 로그인이 안 되어 있을 경우 처리
+    if (user == null) {
+      return Scaffold(
+        body: const Center(
+          child: Text(
+            '사용자가 로그인되지 않았습니다.',
+            style: TextStyle(fontSize: 18),
+          ),
+        ),
+      );
+    }
+
+    final String displayName = user.displayName ?? 'none';
+    final String uid = user.uid;
 
     return Scaffold(
       body: Padding(
@@ -65,7 +57,7 @@ class _FriendPageState extends State<FriendPage> {
                         CircleAvatar(
                           radius: 28,
                           backgroundColor: Colors.purple.shade100,
-                          child: Icon(Icons.person,
+                          child: const Icon(Icons.person,
                               size: 30, color: Colors.purple),
                         ),
                         const SizedBox(width: 16),
@@ -79,9 +71,7 @@ class _FriendPageState extends State<FriendPage> {
                                 fontSize: 18,
                               ),
                             ),
-                            SizedBox(
-                              height: 3,
-                            ),
+                            const SizedBox(height: 3),
                             Text(
                               uid,
                               style: const TextStyle(
@@ -93,7 +83,7 @@ class _FriendPageState extends State<FriendPage> {
                         ),
                       ],
                     ),
-                    SizedBox(width: 20),
+                    const SizedBox(width: 20),
                     IconButton(
                       icon: const Icon(
                         Icons.logout,
@@ -108,7 +98,7 @@ class _FriendPageState extends State<FriendPage> {
                           final GoogleSignIn googleSignIn = GoogleSignIn();
                           await googleSignIn.signOut();
 
-                          // 로그아웃 성공 메시지 출력 (옵션)
+                          // 로그아웃 성공 메시지 출력
                           print("로그아웃 성공");
                           Navigator.pushNamed(context, "/login");
                         } catch (e) {
@@ -127,7 +117,7 @@ class _FriendPageState extends State<FriendPage> {
               decoration: InputDecoration(
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: IconButton(
-                  icon: const Icon(Icons.add), // Show bottom sheet
+                  icon: const Icon(Icons.add),
                   onPressed: () {
                     Navigator.push(
                       context,
@@ -146,49 +136,42 @@ class _FriendPageState extends State<FriendPage> {
             // Friends list
             Expanded(
               child: StreamBuilder<Map<String, dynamic>?>(
-                stream: _databaseService.getUserDataStream(uid), // Stream 구독
+                stream: _databaseService.getUserDataStream(uid),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
+                    return const Center(child: CircularProgressIndicator());
                   }
 
                   if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}'));
+                    return Center(
+                        child: Text('데이터를 가져오는 중 오류 발생: ${snapshot.error}'));
                   }
 
                   final userData = snapshot.data;
                   if (userData == null) {
-                    return Center(child: Text('사용자 데이터 없음'));
+                    return const Center(child: Text('사용자 데이터를 찾을 수 없습니다.'));
                   }
 
                   friends = List<String>.from(userData['friend'] ?? []);
                   friendRequests = List<String>.from(userData['request'] ?? []);
 
-                  return Column(
-                    children: [
-                      // Friends list
-                      Expanded(
-                        child: ListView.builder(
-                          itemCount: friends.length,
-                          itemBuilder: (context, index) {
-                            return ListTile(
-                              leading:
-                                  const Icon(Icons.star, color: Colors.grey),
-                              title: Text(friends[index]),
-                              trailing: IconButton(
-                                icon: const Icon(Icons.delete,
-                                    color: Colors.grey),
-                                onPressed: () {
-                                  setState(() {
-                                    // 친구 삭제 로직 추가
-                                  });
-                                },
-                              ),
-                            );
+                  return ListView.builder(
+                    itemCount: friends.length,
+                    itemBuilder: (context, index) {
+                      return ListTile(
+                        leading: const Icon(Icons.star, color: Colors.grey),
+                        title: Text(friends[index]),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.grey),
+                          onPressed: () {
+                            setState(() {
+                              // 친구 삭제 로직 추가
+                              friends.removeAt(index);
+                            });
                           },
                         ),
-                      ),
-                    ],
+                      );
+                    },
                   );
                 },
               ),
@@ -198,84 +181,19 @@ class _FriendPageState extends State<FriendPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // 하단 모달 시트 호출
           showModalBottomSheet(
             context: context,
             shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
             ),
-            builder: (context) => _buildFriendRequestsModal(),
+            builder: (context) => FriendRequestsModal(
+              currentUserUid: FirebaseAuth.instance.currentUser!.uid,
+              databaseService: _databaseService,
+            ),
           );
         },
         backgroundColor: const Color.fromARGB(255, 212, 139, 224),
         child: const Icon(Icons.local_post_office),
-      ),
-    );
-  }
-
-  Widget _buildFriendRequestsModal() {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Text(
-            "친구 추가 요청",
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 16),
-          ListView.builder(
-            shrinkWrap: true,
-            itemCount: friendRequests.length,
-            itemBuilder: (context, index) {
-              return ListTile(
-                title: Text(friendRequests[index]),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.check, color: Colors.green),
-                      onPressed: () async {
-                        // 친구 요청 수락
-                        final String targetUid = friendRequests[index];
-                        final String currentUserUid =
-                            FirebaseAuth.instance.currentUser!.uid;
-
-                        await _databaseService.acceptFriendRequest(
-                            targetUid, currentUserUid);
-
-                        setState(() {
-                          friends.add(friendRequests[index]);
-                          friendRequests.removeAt(index);
-                        });
-
-                        Navigator.pop(context); // 모달 닫기
-                      },
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.delete, color: Colors.red),
-                      onPressed: () async {
-                        // 친구 요청 거절
-                        final String targetUid = friendRequests[index];
-                        final String currentUserUid =
-                            FirebaseAuth.instance.currentUser!.uid;
-
-                        await _databaseService.rejectFriendRequest(
-                            targetUid, currentUserUid);
-
-                        setState(() {
-                          friendRequests.removeAt(index);
-                        });
-
-                        Navigator.pop(context); // 모달 닫기
-                      },
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-        ],
       ),
     );
   }
