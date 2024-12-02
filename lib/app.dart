@@ -17,17 +17,18 @@ class MyApp extends StatelessWidget {
       initialRoute: '/login',
       routes: {
         // '/map': (BuildContext context) => const GoogleTempPage(),
-        '/routeoption': (BuildContext context) {
-          final address = "포항시 북구 한동로 588 한동대학교";
-          final latitude = 36.0322; // 예시 위도
-          final longitude = 129.3404; // 예시 경도
+        // '/routeoption': (BuildContext context) {
+        //   final address = "포항시 북구 한동로 588 한동대학교";
+        //   final latitude = 36.0322; // 예시 위도
+        //   final longitude = 129.3404; // 예시 경도
 
-          return RouteOptionPage(
-            address: address,
-            latitude: latitude,
-            longitude: longitude,
-          );
-        },
+        //   return RouteOptionPage(
+        //     address: address,
+        //     latitude: latitude,
+        //     longitude: longitude,
+        //   );
+        // },
+        '/routeoption': (BuildContext context) => const RouteOptionPage(),
         '/tracking': (BuildContext context) => const TrackingPage(),
         '/finishTracking': (BuildContext context) => const FinishtrackingPage(),
         '/login': (BuildContext context) => const LoginPage(),

@@ -2,18 +2,22 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+// import 'package:moblie_app_project/login/login.dart';
+import 'package:moblie_app_project/provider/defaultState.dart';
+import 'package:provider/provider.dart';
 
 class ConfirmRouteWidget extends StatefulWidget {
-  final String address;
-  final double latitude;
-  final double longitude;
+  const ConfirmRouteWidget({super.key});
+  // final String address;
+  // final double latitude;
+  // final double longitude;
 
-  const ConfirmRouteWidget({
-    super.key,
-    required this.address,
-    required this.latitude,
-    required this.longitude,
-  });
+  // const ConfirmRouteWidget({
+  //   super.key,
+  //   required this.address,
+  //   required this.latitude,
+  //   required this.longitude,
+  // });
 
   @override
   State<ConfirmRouteWidget> createState() => _ConfirmRouteWidgetState();
@@ -24,9 +28,10 @@ class _ConfirmRouteWidgetState extends State<ConfirmRouteWidget> {
   Widget build(BuildContext context) {
     // GoogleMapController를 관리할 변수
     final Completer<GoogleMapController> _controller = Completer();
+    var defaultState = context.watch<Defaultstate>();
 
     CameraPosition initialPosition = CameraPosition(
-      target: LatLng(widget.latitude, widget.longitude),
+      target: LatLng(defaultState.latitude, defaultState.longitude),
       zoom: 17,
     );
 
@@ -50,7 +55,7 @@ class _ConfirmRouteWidgetState extends State<ConfirmRouteWidget> {
               color: Colors.black54,
             ),
             Text(
-              widget.address,
+              defaultState.address,
               style: const TextStyle(fontSize: 18),
             ),
           ],
@@ -70,8 +75,8 @@ class _ConfirmRouteWidgetState extends State<ConfirmRouteWidget> {
             markers: {
               Marker(
                 markerId: MarkerId('destination'),
-                position: LatLng(widget.latitude, widget.longitude),
-                infoWindow: InfoWindow(title: widget.address),
+                position: LatLng(defaultState.latitude, defaultState.longitude),
+                infoWindow: InfoWindow(title: defaultState.address),
               ),
             },
           ),

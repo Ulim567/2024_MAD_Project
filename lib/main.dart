@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:moblie_app_project/provider/dbservice.dart';
+import 'package:moblie_app_project/provider/defaultState.dart';
 import 'package:provider/provider.dart';
 import 'app.dart';
 
@@ -13,6 +14,7 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => DatabaseService()),
+        ChangeNotifierProvider(create: (_) => Defaultstate())
       ],
       child: const MyApp(),
     ),
