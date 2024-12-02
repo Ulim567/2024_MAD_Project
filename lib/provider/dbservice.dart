@@ -119,6 +119,59 @@ class DatabaseService with ChangeNotifier {
     });
   }
 
+  // 친구 목록 Stream
+  Stream<List<Map<String, dynamic>>> getFriendList(String currentUserUid) {
+    return _userCollection
+        .doc(currentUserUid)
+        .snapshots()
+        .asyncMap((snapshot) async {
+      final friendUids = List<String>.from(snapshot['friend'] ?? []);
+
+      if (friendUids.isEmpty) {
+        return [];
+      }
+
+      final friendDocs = await _userCollection
+          .where(FieldPath.documentId, whereIn: friendUids)
+          .get();
+
+      return friendDocs.docs.map((doc) {
+        return {
+          'uid': doc.id,
+          'name': doc['name'],
+          'email': doc['email'],
+        };
+      }).toList();
+    });
+  }
+
+  // 친구 요청 목록 Stream
+  Stream<List<Map<String, dynamic>>> getFriendRequestList(
+      String currentUserUid) {
+    return _userCollection
+        .doc(currentUserUid)
+        .snapshots()
+        .asyncMap((snapshot) async {
+      final requestUids = List<String>.from(snapshot['request'] ?? []);
+
+      if (requestUids.isEmpty) {
+        return [];
+      }
+
+      final requestDocs = await _userCollection
+          .where(FieldPath.documentId, whereIn: requestUids)
+          .get();
+
+      return requestDocs.docs.map((doc) {
+        return {
+          'uid': doc.id,
+          'name': doc['name'],
+          'email': doc['email'],
+        };
+      }).toList();
+    });
+  }
+
   // 친구 요청 보내기
   Future<void> sendFriendRequest(
       String targetUid, String currentUserUid) async {
