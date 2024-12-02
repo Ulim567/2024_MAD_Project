@@ -144,7 +144,8 @@ class _FriendPageState extends State<FriendPage> {
 
                   if (snapshot.hasError) {
                     return Center(
-                        child: Text('데이터를 가져오는 중 오류 발생: ${snapshot.error}'));
+                      child: Text('데이터를 가져오는 중 오류 발생: ${snapshot.error}'),
+                    );
                   }
 
                   final userData = snapshot.data;
@@ -155,21 +156,59 @@ class _FriendPageState extends State<FriendPage> {
                   friends = List<String>.from(userData['friend'] ?? []);
                   friendRequests = List<String>.from(userData['request'] ?? []);
 
-                  return ListView.builder(
-                    itemCount: friends.length,
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        leading: const Icon(Icons.star, color: Colors.grey),
-                        title: Text(friends[index]),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.grey),
-                          onPressed: () {
-                            setState(() {
-                              // 친구 삭제 로직 추가
-                              friends.removeAt(index);
-                            });
-                          },
-                        ),
+                  return StreamBuilder<List<Map<String, dynamic>>>(
+                    stream:
+                        _databaseService.getUserList(), // 다른 사용자 목록을 가져오는 스트림
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      if (snapshot.hasError) {
+                        return Center(
+                          child: Text('데이터를 가져오는 중 오류 발생: ${snapshot.error}'),
+                        );
+                      }
+
+                      final userList = snapshot.data;
+                      if (userList == null || userList.isEmpty) {
+                        return const Center(
+                          child: Text("사용자 데이터가 없습니다.",
+                              style: TextStyle(color: Colors.grey)),
+                        );
+                      }
+
+                      return ListView.builder(
+                        itemCount: friends.length,
+                        itemBuilder: (context, index) {
+                          final friendUid = friends[index];
+
+                          // friendUid에 해당하는 사용자를 userList에서 찾음
+                          final targetUser = userList.firstWhere(
+                            (user) => user['uid'] == friendUid,
+                            orElse: () => {}, // 유효하지 않으면 빈 맵 반환
+                          );
+
+                          final targetUserName = targetUser['name'] ?? '이름 없음';
+                          final targetUserEmail =
+                              targetUser['email'] ?? '이메일 없음';
+
+                          return ListTile(
+                            leading: const Icon(Icons.star, color: Colors.grey),
+                            title: Text(targetUserName),
+                            subtitle: Text(targetUserEmail),
+                            trailing: IconButton(
+                              icon:
+                                  const Icon(Icons.delete, color: Colors.grey),
+                              onPressed: () {
+                                setState(() {
+                                  // 친구 삭제 로직
+                                  friends.removeAt(index);
+                                });
+                              },
+                            ),
+                          );
+                        },
                       );
                     },
                   );

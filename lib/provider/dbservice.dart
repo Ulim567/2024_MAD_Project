@@ -76,6 +76,22 @@ class DatabaseService with ChangeNotifier {
     }
   }
 
+  Stream<List<Map<String, dynamic>>> getFriendsInfo(List<String> friendsUid) {
+    return _userCollection
+        .where(FieldPath.documentId,
+            whereIn: friendsUid) // friendsUid 목록에 있는 모든 UID로 필터링
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.map((doc) {
+        return {
+          'uid': doc.id,
+          'name': doc['name'],
+          'email': doc['email'],
+        };
+      }).toList();
+    });
+  }
+
   Stream<List<Map<String, dynamic>>> getUserList() {
     return FirebaseFirestore.instance
         .collection('users')
