@@ -48,6 +48,19 @@ class DatabaseService with ChangeNotifier {
     }
   }
 
+  Stream<Map<String, dynamic>?> getUserDataStream(String uid) {
+    return _userCollection.doc(uid).snapshots().map((snapshot) {
+      // snapshot이 존재하고, 데이터가 null이 아닐 경우
+      if (snapshot.exists && snapshot.data() != null) {
+        return {'uid': uid, ...snapshot.data() as Map<String, dynamic>};
+      } else {
+        return null; // 데이터가 없을 경우 null 반환
+      }
+    }).handleError((e) {
+      if (kDebugMode) print("Error getting user data stream: $e");
+    });
+  }
+
   Future<String?> getUserNameByUid(String uid) async {
     try {
       DocumentSnapshot snapshot = await _userCollection.doc(uid).get();
@@ -61,6 +74,37 @@ class DatabaseService with ChangeNotifier {
       if (kDebugMode) print("Error getting user name by UID: $e");
       return null;
     }
+  }
+
+  Stream<List<Map<String, dynamic>>> getFriendsInfo(List<String> friendsUid) {
+    return _userCollection
+        .where(FieldPath.documentId,
+            whereIn: friendsUid) // friendsUid 목록에 있는 모든 UID로 필터링
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.map((doc) {
+        return {
+          'uid': doc.id,
+          'name': doc['name'],
+          'email': doc['email'],
+        };
+      }).toList();
+    });
+  }
+
+  Stream<List<Map<String, dynamic>>> getUserList() {
+    return FirebaseFirestore.instance
+        .collection('users')
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.map((doc) {
+        return {
+          'uid': doc.id,
+          'name': doc['name'],
+          'email': doc['email'],
+        };
+      }).toList();
+    });
   }
 
   // 모든 사용자 데이터 스트림
@@ -130,6 +174,28 @@ class DatabaseService with ChangeNotifier {
         print("Friend request rejected from $targetUid to $currentUserUid");
     } catch (e) {
       if (kDebugMode) print("Error rejecting friend request: $e");
+    }
+  }
+
+  Future<void> deleteFriend(String currentUserUid, String friendUid) async {
+    try {
+      // 로그인한 사용자의 친구 목록에서 friendUid 삭제
+      await _userCollection.doc(currentUserUid).update({
+        'friend': FieldValue.arrayRemove([friendUid]),
+      });
+
+      // 친구 사용자의 친구 목록에서 currentUserUid 삭제
+      await _userCollection.doc(friendUid).update({
+        'friend': FieldValue.arrayRemove([currentUserUid]),
+      });
+
+      if (kDebugMode) {
+        print("Friend $friendUid removed from $currentUserUid's friend list");
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print("Error removing friend: $e");
+      }
     }
   }
 }
