@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
+import 'package:intl/intl.dart';
+import 'package:moblie_app_project/provider/defaultState.dart';
+import 'package:provider/provider.dart';
 
 class TrackingPage extends StatefulWidget {
   const TrackingPage({super.key});
@@ -10,10 +13,11 @@ class TrackingPage extends StatefulWidget {
 
 class _TrackingPageState extends State<TrackingPage> {
   final _key = GlobalKey<ExpandableFabState>();
-  final String selectedTime = "17시 20분";
 
   @override
   Widget build(BuildContext context) {
+    var defaultState = context.watch<Defaultstate>();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("귀가중..."),
@@ -27,29 +31,29 @@ class _TrackingPageState extends State<TrackingPage> {
             height: 400,
             color: Colors.black38,
           ),
-          const Padding(
+          Padding(
             padding: const EdgeInsets.all(20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                const Text(
                   "도착 설정 시간",
                   style: TextStyle(fontSize: 20),
                 ),
                 Text(
-                  "18시 56분",
-                  style: TextStyle(fontSize: 25),
+                  DateFormat('HH시 mm분').format(defaultState.selectedTime),
+                  style: const TextStyle(fontSize: 25),
                 ),
-                Text(
-                  "현재 도착 예정 시간 19시 13분",
+                const Text(
+                  "현재 도착 예정 시간 19시 13분", //TODO: 여기 실제 값으로 변경해야함
                   style: TextStyle(fontSize: 15, color: Colors.black54),
                 ),
                 const SizedBox(
                   height: 10,
                 ),
-                const Text(
-                  "포항시 북구 흥해읍 한동로 588 한동대학교",
-                  style: TextStyle(fontSize: 18),
+                Text(
+                  defaultState.address,
+                  style: const TextStyle(fontSize: 18),
                 ),
               ],
             ),

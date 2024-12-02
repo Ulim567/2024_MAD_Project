@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:moblie_app_project/provider/defaultState.dart';
+// import 'package:moblie_app_project/routeoption/widgets/confirmRouteWidget.dart';
+import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 
 class FinalconfirmWidget extends StatelessWidget {
   const FinalconfirmWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final location = "한동대학교";
-    final locationDetail = "포항시 북구 흥해읍 한동로 588";
-    final time = "17시 20분";
-    final friends = ["이향우", "이향우", "이향우"];
+    var defaultState = context.watch<Defaultstate>();
+
+    String location = "한동대학교"; // TODO: 이거 바꾸기!!!
+
+    List<String> friends = defaultState.selectedFriends;
     String friendsStirng = "";
 
     for (int i = 0; i < friends.length; i++) {
@@ -45,7 +50,7 @@ class FinalconfirmWidget extends StatelessWidget {
                       fontSize: 25, fontWeight: FontWeight.w500),
                 ),
                 Text(
-                  locationDetail,
+                  defaultState.address,
                   style: const TextStyle(fontSize: 18),
                 ),
               ],
@@ -57,7 +62,7 @@ class FinalconfirmWidget extends StatelessWidget {
               size: 25,
             ),
             title: Text(
-              time,
+              DateFormat('HH시 mm분').format(defaultState.selectedTime),
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
             ),
           ),

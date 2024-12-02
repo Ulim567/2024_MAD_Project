@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:moblie_app_project/provider/defaultState.dart';
+import 'package:provider/provider.dart';
 import 'package:wheel_picker/wheel_picker.dart';
 
 class SelectTimeWidget extends StatelessWidget {
@@ -50,8 +52,17 @@ class _WheelPickerExampleState extends State<WheelPickerExample> {
     mounts: [_hoursWheel],
   );
 
+  DateTime get selectedDateTime {
+    final hour24 = (selectedAmPm == 1) // PM
+        ? (selectedHour % 12) + 12
+        : (selectedHour % 12);
+    final now = DateTime.now();
+    return DateTime(now.year, now.month, now.day, hour24, selectedMinute);
+  }
+
   @override
   Widget build(BuildContext context) {
+    var defaultState = context.watch<Defaultstate>();
     const textStyle = TextStyle(fontSize: 26.0, height: 1.5);
     final wheelStyle = WheelPickerStyle(
       itemExtent: textStyle.fontSize! * textStyle.height!, // Text height
@@ -67,6 +78,8 @@ class _WheelPickerExampleState extends State<WheelPickerExample> {
         selectedHour = hour;
         selectedMinute = minute;
         selectedAmPm = amPm;
+
+        defaultState.setSelectedTime(selectedDateTime);
       });
     }
 

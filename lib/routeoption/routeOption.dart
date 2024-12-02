@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+// import 'package:moblie_app_project/login/login.dart';
 
 import 'widgets/confirmRouteWidget.dart';
 import 'widgets/selectTimeWidget.dart';
@@ -6,16 +7,17 @@ import 'widgets/selectFriendWidget.dart';
 import 'widgets/finalConfirmWidget.dart';
 
 class RouteOptionPage extends StatefulWidget {
-  final String address;
-  final double latitude;
-  final double longitude;
+  const RouteOptionPage({super.key});
+  // final String address;
+  // final double latitude;
+  // final double longitude;
 
-  const RouteOptionPage({
-    super.key,
-    required this.address,
-    required this.latitude,
-    required this.longitude,
-  });
+  // const RouteOptionPage({
+  //   super.key,
+  //   required this.address,
+  //   required this.latitude,
+  //   required this.longitude,
+  // });
 
   @override
   State<RouteOptionPage> createState() => _RouteOptionPageState();
@@ -31,11 +33,12 @@ class _RouteOptionPageState extends State<RouteOptionPage> {
   void initState() {
     super.initState();
     pages = [
-      ConfirmRouteWidget(
-        address: widget.address,
-        latitude: widget.latitude,
-        longitude: widget.longitude,
-      ),
+      // ConfirmRouteWidget(
+      //   address: widget.address,
+      //   latitude: widget.latitude,
+      //   longitude: widget.longitude,
+      // ),
+      const ConfirmRouteWidget(),
       const SelectTimeWidget(),
       const SelectFriendWidget(),
       const FinalconfirmWidget(),

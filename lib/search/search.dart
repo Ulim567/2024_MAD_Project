@@ -1,8 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:moblie_app_project/routeoption/routeOption.dart';
+import 'package:moblie_app_project/provider/defaultState.dart';
 import 'package:moblie_app_project/api/tmap_search_service.dart'; // Timer를 사용하기 위해 import
 import 'dart:async';
+
+// import 'package:moblie_app_project/routeoption/widgets/confirmRouteWidget.dart';
+import 'package:provider/provider.dart';
 
 class SearchMapPage extends StatefulWidget {
   const SearchMapPage({super.key});
@@ -41,13 +44,14 @@ class _SearchMapPageState extends State<SearchMapPage> {
   // 디바운싱 처리: 사용자가 입력을 멈추면 API 호출
   void _onSearchChanged(String value) {
     if (_debounceTimer?.isActive ?? false) _debounceTimer?.cancel();
-    _debounceTimer = Timer(const Duration(milliseconds: 500), () {
+    _debounceTimer = Timer(const Duration(milliseconds: 100), () {
       _searchPlace();
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    var defaultState = context.watch<Defaultstate>();
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(58.0),
@@ -96,15 +100,19 @@ class _SearchMapPageState extends State<SearchMapPage> {
                 final address = result['address'] ?? ''; // 상세 주소 (없을 경우 빈 문자열)
                 return InkWell(
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      CupertinoPageRoute(
-                          builder: (c) => RouteOptionPage(
-                                address: address,
-                                latitude: result['lat'],
-                                longitude: result['lng'],
-                              )),
-                    );
+                    defaultState.setAddress(address);
+                    defaultState.setLatitude(result['lat']);
+                    defaultState.setLongitude(result['lng']);
+                    Navigator.pushNamed(context, '/routeoption');
+                    // Navigator.push(
+                    //   context,
+                    //   CupertinoPageRoute(
+                    //       builder: (c) => RouteOptionPage(
+                    //             address: address,
+                    //             latitude: result['lat'],
+                    //             longitude: result['lng'],
+                    //           )),
+                    // );
                   },
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
