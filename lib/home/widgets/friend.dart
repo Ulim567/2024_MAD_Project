@@ -14,14 +14,11 @@ class FriendPage extends StatefulWidget {
 
 class _FriendPageState extends State<FriendPage> {
   final DatabaseService _databaseService = DatabaseService();
-  List<String> friends = [];
-  List<String> friendRequests = [];
 
   @override
   Widget build(BuildContext context) {
     final User? user = FirebaseAuth.instance.currentUser;
 
-    // 사용자 로그인이 안 되어 있을 경우 처리
     if (user == null) {
       return Scaffold(
         body: const Center(
@@ -41,7 +38,7 @@ class _FriendPageState extends State<FriendPage> {
         padding: const EdgeInsets.fromLTRB(16, 50, 16, 16),
         child: Column(
           children: [
-            // Profile card
+            // 프로필 카드
             Card(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
@@ -91,18 +88,12 @@ class _FriendPageState extends State<FriendPage> {
                       ),
                       onPressed: () async {
                         try {
-                          // Firebase 로그아웃
                           await FirebaseAuth.instance.signOut();
-
-                          // Google Sign-In 로그아웃
                           final GoogleSignIn googleSignIn = GoogleSignIn();
                           await googleSignIn.signOut();
-
-                          // 로그아웃 성공 메시지 출력
                           print("로그아웃 성공");
                           Navigator.pushNamed(context, "/login");
                         } catch (e) {
-                          // 로그아웃 실패 메시지 출력
                           print("로그아웃 실패: $e");
                         }
                       },
@@ -112,7 +103,7 @@ class _FriendPageState extends State<FriendPage> {
               ),
             ),
             const SizedBox(height: 16),
-            // Search bar
+            // 검색 창
             TextField(
               decoration: InputDecoration(
                 prefixIcon: const Icon(Icons.search),
@@ -133,10 +124,10 @@ class _FriendPageState extends State<FriendPage> {
               ),
             ),
             const SizedBox(height: 16),
-            // Friends list
+            // 친구 목록
             Expanded(
-              child: StreamBuilder<Map<String, dynamic>?>(
-                stream: _databaseService.getUserDataStream(uid),
+              child: StreamBuilder<List<Map<String, dynamic>>>(
+                stream: _databaseService.getFriendList(uid),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
@@ -148,71 +139,34 @@ class _FriendPageState extends State<FriendPage> {
                     );
                   }
 
-                  final userData = snapshot.data;
-                  if (userData == null) {
-                    return const Center(child: Text('사용자 데이터를 찾을 수 없습니다.'));
+                  final friends = snapshot.data ?? [];
+                  if (friends.isEmpty) {
+                    return const Center(
+                      child: Text("친구 목록이 없습니다.",
+                          style: TextStyle(color: Colors.grey)),
+                    );
                   }
 
-                  friends = List<String>.from(userData['friend'] ?? []);
-                  friendRequests = List<String>.from(userData['request'] ?? []);
+                  return ListView.builder(
+                    itemCount: friends.length,
+                    itemBuilder: (context, index) {
+                      final friend = friends[index];
+                      final friendName = friend['name'] ?? '이름 없음';
+                      final friendEmail = friend['email'] ?? '이메일 없음';
 
-                  return StreamBuilder<List<Map<String, dynamic>>>(
-                    stream:
-                        _databaseService.getUserList(), // 다른 사용자 목록을 가져오는 스트림
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-
-                      if (snapshot.hasError) {
-                        return Center(
-                          child: Text('데이터를 가져오는 중 오류 발생: ${snapshot.error}'),
-                        );
-                      }
-
-                      final userList = snapshot.data;
-                      if (userList == null || userList.isEmpty) {
-                        return const Center(
-                          child: Text("사용자 데이터가 없습니다.",
-                              style: TextStyle(color: Colors.grey)),
-                        );
-                      }
-
-                      return ListView.builder(
-                        itemCount: friends.length,
-                        itemBuilder: (context, index) {
-                          final friendUid = friends[index];
-
-                          // friendUid에 해당하는 사용자를 userList에서 찾음
-                          final targetUser = userList.firstWhere(
-                            (user) => user['uid'] == friendUid,
-                            orElse: () => {}, // 유효하지 않으면 빈 맵 반환
-                          );
-
-                          final targetUserName = targetUser['name'] ?? '이름 없음';
-                          final targetUserEmail =
-                              targetUser['email'] ?? '이메일 없음';
-
-                          return ListTile(
-                            leading: const Icon(Icons.star, color: Colors.grey),
-                            title: Text(targetUserName),
-                            subtitle: Text(targetUserEmail),
-                            trailing: IconButton(
-                              icon:
-                                  const Icon(Icons.delete, color: Colors.grey),
-                              onPressed: () async {
-                                if (friends.isNotEmpty &&
-                                    index < friends.length) {
-                                  // 친구 삭제 로직 실행
-                                  await _databaseService.deleteFriend(
-                                      uid, friends[index]);
-                                } else {
-                                  print("친구 목록이 비어 있거나 잘못된 인덱스입니다.");
-                                }
-                              },
-                            ),
-                          );
-                        },
+                      return ListTile(
+                        leading: const Icon(Icons.star, color: Colors.grey),
+                        title: Text(friendName),
+                        subtitle: Text(friendEmail),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.grey),
+                          onPressed: () async {
+                            await _databaseService.deleteFriend(
+                              uid,
+                              friend['uid'],
+                            );
+                          },
+                        ),
                       );
                     },
                   );
@@ -230,9 +184,8 @@ class _FriendPageState extends State<FriendPage> {
               borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
             ),
             builder: (context) => FriendRequestsModal(
-              currentUserUid: FirebaseAuth.instance.currentUser!.uid,
-              friendRequests: friendRequests,
               databaseService: _databaseService,
+              currentUserUid: uid,
             ),
           );
         },
