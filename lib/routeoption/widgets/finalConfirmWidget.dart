@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
 
 class FinalconfirmWidget extends StatelessWidget {
-  const FinalconfirmWidget({super.key});
+  final String address;
+  final double latitude;
+  final double longitude;
+  const FinalconfirmWidget({
+    super.key,
+    required this.address,
+    required this.latitude,
+    required this.longitude,
+  });
 
   @override
   Widget build(BuildContext context) {

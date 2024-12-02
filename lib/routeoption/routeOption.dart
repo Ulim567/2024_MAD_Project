@@ -38,7 +38,11 @@ class _RouteOptionPageState extends State<RouteOptionPage> {
       ),
       const SelectTimeWidget(),
       const SelectFriendWidget(),
-      const FinalconfirmWidget(),
+      FinalconfirmWidget(
+        address: widget.address,
+        latitude: widget.latitude,
+        longitude: widget.longitude,
+      ),
     ];
   }
 
