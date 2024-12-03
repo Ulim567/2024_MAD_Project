@@ -53,6 +53,7 @@ class _SearchMapPageState extends State<SearchMapPage> {
   Widget build(BuildContext context) {
     var defaultState = context.watch<Defaultstate>();
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(58.0),
         child: AppBar(
@@ -101,6 +102,7 @@ class _SearchMapPageState extends State<SearchMapPage> {
                 final address = result['address'] ?? ''; // 상세 주소 (없을 경우 빈 문자열)
                 return InkWell(
                   onTap: () {
+                    FocusScope.of(context).unfocus();
                     defaultState.setName(name);
                     defaultState.setAddress(address);
                     defaultState.setLatitude(result['lat']);
@@ -117,7 +119,7 @@ class _SearchMapPageState extends State<SearchMapPage> {
                     // );
                   },
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+                    padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
                     child: Row(
                       children: [
                         const Padding(
