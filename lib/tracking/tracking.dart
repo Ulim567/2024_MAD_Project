@@ -144,7 +144,9 @@ class _TrackingPageState extends State<TrackingPage> {
               const SizedBox(width: 20),
               FloatingActionButton(
                 heroTag: null,
-                onPressed: null,
+                onPressed: () {
+                  Navigator.pushNamed(context, '/call');
+                },
                 backgroundColor: Colors.lightGreen.shade200,
                 foregroundColor: Colors.black87,
                 shape: RoundedRectangleBorder(

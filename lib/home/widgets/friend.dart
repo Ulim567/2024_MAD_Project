@@ -20,8 +20,8 @@ class _FriendPageState extends State<FriendPage> {
     final User? user = FirebaseAuth.instance.currentUser;
 
     if (user == null) {
-      return Scaffold(
-        body: const Center(
+      return const Scaffold(
+        body: Center(
           child: Text(
             '사용자가 로그인되지 않았습니다.',
             style: TextStyle(fontSize: 18),
@@ -34,6 +34,7 @@ class _FriendPageState extends State<FriendPage> {
     final String uid = user.uid;
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Padding(
         padding: const EdgeInsets.fromLTRB(16, 50, 16, 16),
         child: Column(
