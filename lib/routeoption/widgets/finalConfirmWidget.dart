@@ -13,12 +13,12 @@ class FinalconfirmWidget extends StatelessWidget {
 
     String location = defaultState.name; // TODO: 이거 바꾸기!!!
 
-    List<String> friends = defaultState.selectedFriends;
+    List<Map<String, dynamic>> friends = defaultState.selectedFriends;
     String friendsStirng = "";
 
     for (int i = 0; i < friends.length; i++) {
       if (i == friends.length - 1) {
-        friendsStirng = friendsStirng + friends[i];
+        friendsStirng = friendsStirng + friends[i]['name'].toString();
       } else {
         friendsStirng = "$friendsStirng${friends[i]}, ";
       }
