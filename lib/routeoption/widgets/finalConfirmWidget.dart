@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:moblie_app_project/provider/defaultState.dart';
-// import 'package:moblie_app_project/routeoption/widgets/confirmRouteWidget.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:auto_size_text_plus/auto_size_text_plus.dart';
 
 class FinalconfirmWidget extends StatelessWidget {
   const FinalconfirmWidget({super.key});
@@ -37,41 +37,78 @@ class FinalconfirmWidget extends StatelessWidget {
       ),
       Column(
         children: [
-          ListTile(
-            leading: const Icon(
-              Icons.location_on_outlined,
+          Row(children: [
+            Container(
+              width: 30,
+              child: const Icon(
+                Icons.location_on_outlined,
+                size: 30,
+              ),
             ),
-            title: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            const SizedBox(
+              width: 10,
+            ),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AutoSizeText(
+                    location,
+                    maxLines: 1,
+                    style: const TextStyle(
+                        fontSize: 25, fontWeight: FontWeight.w500),
+                  ),
+                  AutoSizeText(
+                    defaultState.address,
+                    maxLines: 1,
+                    style: const TextStyle(fontSize: 18),
+                  ),
+                ],
+              ),
+            ),
+          ]),
+          const SizedBox(
+            height: 15,
+          ),
+          Row(children: [
+            Container(
+              width: 30,
+              child: const Icon(
+                Icons.schedule,
+                size: 25,
+              ),
+            ),
+            const SizedBox(
+              width: 10,
+            ),
+            Column(
               children: [
                 Text(
-                  location,
+                  DateFormat('HH시 mm분').format(defaultState.selectedTime),
                   style: const TextStyle(
-                      fontSize: 25, fontWeight: FontWeight.w500),
-                ),
-                Text(
-                  defaultState.address,
-                  style: const TextStyle(fontSize: 18),
+                      fontSize: 20, fontWeight: FontWeight.w500),
                 ),
               ],
             ),
+          ]),
+          const SizedBox(
+            height: 30,
           ),
-          ListTile(
-            leading: const Icon(
-              Icons.schedule,
-              size: 25,
+          Row(children: [
+            Container(width: 30, child: const Icon(Icons.person)),
+            const SizedBox(
+              width: 10,
             ),
-            title: Text(
-              DateFormat('HH시 mm분').format(defaultState.selectedTime),
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
-            ),
-          ),
-          ListTile(
-              leading: const Icon(Icons.person),
-              title: Text(
+            Expanded(
+              child: AutoSizeText(
                 friendsStirng,
+                maxLines: 4,
+                minFontSize: 18,
+                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(fontSize: 20),
-              ))
+              ),
+            )
+          ])
         ],
       ),
     ]);

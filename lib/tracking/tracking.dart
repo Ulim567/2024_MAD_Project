@@ -41,6 +41,16 @@ class _TrackingPageState extends State<TrackingPage> {
       appBar: AppBar(
         title: const Text("귀가중..."),
         centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pushNamedAndRemoveUntil(
+              context,
+              '/',
+              (Route<dynamic> route) => false,
+            );
+          },
+        ),
       ),
       body: StreamBuilder<Map<String, dynamic>>(
           stream: _databaseService.getTrackingInfo(uid),
@@ -61,6 +71,15 @@ class _TrackingPageState extends State<TrackingPage> {
             Map<String, dynamic> dst = info['destination'];
 
             LatLng destination = LatLng(dst['latitude'], dst['longitude']);
+            String time = DateFormat('HH시 mm분').format(dst['time'].toDate());
+
+            DateTime selectedTime = dst['time'].toDate();
+            Duration difference = DateTime.now().difference(selectedTime);
+
+            // Duration에서 원하는 정보를 추출
+            int hours = difference.inHours; // 총 시간 차
+            int minutes = difference.inMinutes % 60; // 남은 분
+
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -73,7 +92,7 @@ class _TrackingPageState extends State<TrackingPage> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.fromLTRB(25, 20, 25, 60),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -82,18 +101,21 @@ class _TrackingPageState extends State<TrackingPage> {
                         style: TextStyle(fontSize: 20),
                       ),
                       Text(
-                        DateFormat('HH시 mm분').format(dst['time'].toDate()),
+                        time,
                         style: const TextStyle(fontSize: 25),
                       ),
-                      const Text(
-                        "현재 도착 예정 시간 19시 13분", //TODO: 여기 실제 값으로 변경해야함
-                        style: TextStyle(fontSize: 15, color: Colors.black54),
+                      Text(
+                        (hours == 0)
+                            ? "현재 남은 시간 00:$minutes"
+                            : "현재 남은 시간 $hours:$minutes", //TODO: 여기 실제 값으로 변경해야함
+                        style: const TextStyle(
+                            fontSize: 15, color: Colors.black54),
                       ),
                       const SizedBox(
                         height: 10,
                       ),
                       Text(
-                        "${dst['address']} ${dst['name']}",
+                        "${dst['address']}\n${dst['name']}",
                         style: const TextStyle(fontSize: 18),
                       ),
                     ],

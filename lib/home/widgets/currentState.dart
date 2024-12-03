@@ -158,7 +158,7 @@ ToastificationItem getToast(BuildContext context) {
     context: context,
     type: ToastificationType.info,
     style: ToastificationStyle.flat,
-    title: const Text("진행 중인 귀가 정보가 이미 있습니다"),
+    title: const Text("진행 중인 귀가 정보가 없습니다"),
     alignment: Alignment.bottomCenter,
     autoCloseDuration: const Duration(seconds: 3),
     animationBuilder: (
