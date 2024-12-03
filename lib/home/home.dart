@@ -40,9 +40,9 @@ class _HomeState extends State<Home> {
                   label: "현황")
             ]),
         body: <Widget>[
-          FriendPage(),
-          HomePage(),
-          CurrentStatePage(),
+          const FriendPage(),
+          const HomePage(),
+          const CurrentStatePage(),
         ][currentPageIndex]);
   }
 }
