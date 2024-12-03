@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:moblie_app_project/routeoption/routeOption.dart';
+import 'package:moblie_app_project/tracking/callPage.dart';
 
 import 'login/login.dart';
 import 'home/home.dart';
@@ -33,6 +34,7 @@ class MyApp extends StatelessWidget {
         '/finishTracking': (BuildContext context) => const FinishtrackingPage(),
         '/login': (BuildContext context) => const LoginPage(),
         '/search': (BuildContext context) => const SearchMapPage(),
+        '/call': (BuildContext context) => const CallPage(),
         '/': (BuildContext context) => const Home(),
       },
       theme: ThemeData.light(useMaterial3: true),

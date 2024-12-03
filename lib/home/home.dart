@@ -10,6 +10,8 @@ class Home extends StatefulWidget {
   State<Home> createState() => _HomeState();
 }
 
+//ddd
+
 class _HomeState extends State<Home> {
   int currentPageIndex = 1;
 
@@ -40,9 +42,9 @@ class _HomeState extends State<Home> {
                   label: "현황")
             ]),
         body: <Widget>[
-          FriendPage(),
-          HomePage(),
-          CurrentStatePage(),
+          const FriendPage(),
+          const HomePage(),
+          const CurrentStatePage(),
         ][currentPageIndex]);
   }
 }

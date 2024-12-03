@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
@@ -21,15 +23,24 @@ class _RouteMapState extends State<RouteMap> {
   late GoogleMapController _mapController;
   LatLng _currentLatLng =
       const LatLng(36.0821603, 129.398434); // Default location
-  bool _isLocationLoaded = true;
+  bool _isLocationLoaded = false;
+  bool _isTrackingEnabled = false; // Tracking state
+  StreamSubscription<Position>? _positionStream;
   List<LatLng> _polylinePoints = [];
   final TmapDirectionsService _directionsService = TmapDirectionsService();
 
   @override
   void initState() {
-    // _getLocation();
     super.initState();
-    _getRoute();
+    _getLocation().then((_) {
+      _getRoute();
+    });
+  }
+
+  @override
+  void dispose() {
+    _positionStream?.cancel(); // Cancel position stream when widget is disposed
+    super.dispose();
   }
 
   // Fetch route from current location to destination
@@ -113,46 +124,124 @@ class _RouteMapState extends State<RouteMap> {
     _mapController = controller;
   }
 
+  Future<bool> _requestLocationPermission() async {
+    LocationPermission permission = await Geolocator.checkPermission();
+
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("위치 권한이 필요합니다.")),
+        );
+        return false;
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("앱 설정에서 위치 권한을 활성화해주세요.")),
+      );
+      return false;
+    }
+
+    return true;
+  }
+
+  void _toggleTracking() async {
+    if (_isTrackingEnabled) {
+      // Stop tracking
+      _positionStream?.cancel();
+    } else {
+      // Start tracking
+      final permission = await _requestLocationPermission();
+      if (!permission) return;
+
+      _positionStream = Geolocator.getPositionStream(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          distanceFilter: 2, // Update only when moving 10 meters
+        ),
+      ).listen((Position position) {
+        final newLatLng = LatLng(position.latitude, position.longitude);
+
+        setState(() {
+          _currentLatLng = newLatLng;
+        });
+
+        _mapController.animateCamera(
+          CameraUpdate.newCameraPosition(
+            CameraPosition(
+              target: newLatLng,
+              zoom: 20.0,
+              bearing: position.heading, // User's heading
+            ),
+          ),
+        );
+      });
+    }
+
+    setState(() {
+      _isTrackingEnabled = !_isTrackingEnabled;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Stack(
       children: [
-        Expanded(
-          child: _isLocationLoaded
-              ? GoogleMap(
-                  onMapCreated: _onMapCreated,
-                  initialCameraPosition: CameraPosition(
-                    target: _currentLatLng,
-                    zoom: 11.0,
-                  ),
-                  markers: {
-                    Marker(
-                      markerId: const MarkerId('currentLocation'),
-                      position: _currentLatLng,
-                      icon: BitmapDescriptor.defaultMarkerWithHue(
-                          BitmapDescriptor.hueGreen),
-                      infoWindow: const InfoWindow(title: 'Current Location'),
-                    ),
-                    Marker(
-                      markerId: const MarkerId('destinationLocation'),
-                      position: widget.destination,
-                      infoWindow:
-                          const InfoWindow(title: 'Destination Location'),
-                    ),
-                  },
-                  polylines: {
-                    if (_polylinePoints.isNotEmpty)
-                      Polyline(
-                        polylineId: const PolylineId('route'),
-                        color: Colors.blue,
-                        width: 5,
-                        points: _polylinePoints,
+        Column(
+          children: [
+            Expanded(
+              child: _isLocationLoaded
+                  ? GoogleMap(
+                      onMapCreated: _onMapCreated,
+                      initialCameraPosition: CameraPosition(
+                        target: _currentLatLng,
+                        zoom: 11.0,
                       ),
-                  },
-                )
-              : const Center(
-                  child: CircularProgressIndicator(),
-                ),
+                      markers: {
+                        Marker(
+                          markerId: const MarkerId('currentLocation'),
+                          position: _currentLatLng,
+                          icon: BitmapDescriptor.defaultMarkerWithHue(
+                              BitmapDescriptor.hueGreen),
+                          infoWindow:
+                              const InfoWindow(title: 'Current Location'),
+                        ),
+                        Marker(
+                          markerId: const MarkerId('destinationLocation'),
+                          position: widget.destination,
+                          infoWindow:
+                              const InfoWindow(title: 'Destination Location'),
+                        ),
+                      },
+                      polylines: {
+                        if (_polylinePoints.isNotEmpty)
+                          Polyline(
+                            polylineId: const PolylineId('route'),
+                            color: Colors.blue,
+                            width: 5,
+                            points: _polylinePoints,
+                          ),
+                      },
+                    )
+                  : const Center(
+                      child: CircularProgressIndicator(),
+                    ),
+            ),
+          ],
+        ),
+        Positioned(
+          right: 120,
+          left: 120,
+          bottom: 30,
+          child: FloatingActionButton(
+            onPressed: _toggleTracking,
+            backgroundColor: _isTrackingEnabled ? Colors.red : Colors.blue,
+            child: Icon(_isTrackingEnabled
+                ? Icons.pause
+                : Icons.my_location), // Toggle icon
+          ),
         ),
       ],
     );
