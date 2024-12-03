@@ -1,5 +1,9 @@
 import 'package:auto_size_text_plus/auto_size_text_plus.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:toastification/toastification.dart';
+
+import '../../provider/dbservice.dart';
 
 class CurrentStatePage extends StatefulWidget {
   const CurrentStatePage({super.key});
@@ -9,6 +13,8 @@ class CurrentStatePage extends StatefulWidget {
 }
 
 class _CurrentStatePageState extends State<CurrentStatePage> {
+  final DatabaseService _databaseService = DatabaseService();
+
   Widget stateInfoCard(String name, String locationDetail, String location) {
     return Card(
         child: Padding(
@@ -65,6 +71,20 @@ class _CurrentStatePageState extends State<CurrentStatePage> {
 
   @override
   Widget build(BuildContext context) {
+    final User? user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) {
+      return const Scaffold(
+        body: Center(
+          child: Text(
+            '사용자가 로그인되지 않았습니다.',
+            style: TextStyle(fontSize: 18),
+          ),
+        ),
+      );
+    }
+    final String uid = user.uid;
+
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.fromLTRB(32, 32, 32, 0),
@@ -75,7 +95,10 @@ class _CurrentStatePageState extends State<CurrentStatePage> {
               padding: const EdgeInsets.fromLTRB(0, 20, 0, 10),
               child: Row(
                 children: [
-                  const Icon(Icons.today),
+                  const Icon(
+                    Icons.today,
+                    size: 30,
+                  ),
                   const SizedBox(
                     width: 10,
                   ),
@@ -84,11 +107,29 @@ class _CurrentStatePageState extends State<CurrentStatePage> {
                     style: TextStyle(fontSize: 24),
                   ),
                   Expanded(child: Container()),
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.navigation_rounded),
-                    iconSize: 30,
-                  )
+                  FutureBuilder<bool>(
+                      future: _databaseService.isTrackingNow(uid),
+                      builder: (context, snapshot) {
+                        final bool isTracking = snapshot.data ?? false;
+
+                        return IconButton(
+                          onPressed: () {
+                            if (isTracking) {
+                              Navigator.pushNamed(context, '/tracking');
+                            } else {
+                              var toast = getToast(context);
+                              toastification.dismissAll();
+                              toast.start();
+                            }
+                          },
+                          icon: Badge(
+                              isLabelVisible: isTracking,
+                              offset: const Offset(4, 4),
+                              backgroundColor: Colors.red,
+                              child: const Icon(Icons.map_outlined)),
+                          iconSize: 30,
+                        );
+                      })
                 ],
               ),
             ),
@@ -110,4 +151,33 @@ class _CurrentStatePageState extends State<CurrentStatePage> {
       ),
     );
   }
+}
+
+ToastificationItem getToast(BuildContext context) {
+  return toastification.show(
+    context: context,
+    type: ToastificationType.info,
+    style: ToastificationStyle.flat,
+    title: const Text("진행 중인 귀가 정보가 없습니다"),
+    alignment: Alignment.bottomCenter,
+    autoCloseDuration: const Duration(seconds: 3),
+    animationBuilder: (
+      context,
+      animation,
+      alignment,
+      child,
+    ) {
+      return FadeTransition(
+        opacity: animation,
+        child: child,
+      );
+    },
+    borderRadius: BorderRadius.circular(12.0),
+    closeButtonShowType: CloseButtonShowType.none,
+    showProgressBar: false,
+    margin: const EdgeInsets.fromLTRB(0, 0, 0, 80),
+    closeOnClick: true,
+    dragToClose: true,
+    dismissDirection: DismissDirection.startToEnd,
+  );
 }

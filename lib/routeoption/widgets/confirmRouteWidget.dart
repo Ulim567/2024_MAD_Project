@@ -2,22 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-// import 'package:moblie_app_project/login/login.dart';
 import 'package:moblie_app_project/provider/defaultState.dart';
 import 'package:provider/provider.dart';
+import 'package:auto_size_text_plus/auto_size_text_plus.dart';
 
 class ConfirmRouteWidget extends StatefulWidget {
   const ConfirmRouteWidget({super.key});
-  // final String address;
-  // final double latitude;
-  // final double longitude;
-
-  // const ConfirmRouteWidget({
-  //   super.key,
-  //   required this.address,
-  //   required this.latitude,
-  //   required this.longitude,
-  // });
 
   @override
   State<ConfirmRouteWidget> createState() => _ConfirmRouteWidgetState();
@@ -53,15 +43,34 @@ class _ConfirmRouteWidgetState extends State<ConfirmRouteWidget> {
             const Icon(
               Icons.location_on_outlined,
               color: Colors.black54,
+              size: 30,
             ),
-            Text(
-              defaultState.address,
-              style: const TextStyle(fontSize: 18),
+            const SizedBox(
+              width: 10,
             ),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AutoSizeText(
+                    defaultState.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontSize: 24),
+                  ),
+                  AutoSizeText(
+                    defaultState.address,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontSize: 18),
+                  ),
+                ],
+              ),
+            )
           ],
         ),
         const SizedBox(
-          height: 10,
+          height: 15,
         ),
         // Google Maps 위젯
         SizedBox(

@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:moblie_app_project/provider/defaultState.dart';
@@ -6,6 +7,9 @@ import 'dart:async';
 
 // import 'package:moblie_app_project/routeoption/widgets/confirmRouteWidget.dart';
 import 'package:provider/provider.dart';
+import 'package:toastification/toastification.dart';
+
+import '../provider/dbservice.dart';
 
 class SearchMapPage extends StatefulWidget {
   const SearchMapPage({super.key});
@@ -15,6 +19,7 @@ class SearchMapPage extends StatefulWidget {
 }
 
 class _SearchMapPageState extends State<SearchMapPage> {
+  final DatabaseService _databaseService = DatabaseService();
   final TextEditingController _searchContent = TextEditingController();
   final TmapService tmapService = TmapService(); // TmapService 인스턴스 생성
   List<Map<String, dynamic>> searchResults = []; // 검색 결과를 저장할 리스트
@@ -51,6 +56,19 @@ class _SearchMapPageState extends State<SearchMapPage> {
 
   @override
   Widget build(BuildContext context) {
+    final User? user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      return const Scaffold(
+        body: Center(
+          child: Text(
+            '사용자가 로그인되지 않았습니다.',
+            style: TextStyle(fontSize: 18),
+          ),
+        ),
+      );
+    }
+
+    final String uid = user.uid;
     var defaultState = context.watch<Defaultstate>();
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -92,7 +110,7 @@ class _SearchMapPageState extends State<SearchMapPage> {
         ),
       ),
       body: searchResults.isEmpty
-          ? Center(child: Text('검색 결과가 없습니다.'))
+          ? const Center(child: Text('검색 결과가 없습니다.'))
           : ListView.separated(
               padding: EdgeInsets.zero,
               itemCount: searchResults.length,
@@ -101,22 +119,20 @@ class _SearchMapPageState extends State<SearchMapPage> {
                 final name = result['name'] ?? '';
                 final address = result['address'] ?? ''; // 상세 주소 (없을 경우 빈 문자열)
                 return InkWell(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    defaultState.setName(name);
-                    defaultState.setAddress(address);
-                    defaultState.setLatitude(result['lat']);
-                    defaultState.setLongitude(result['lng']);
-                    Navigator.pushNamed(context, '/routeoption');
-                    // Navigator.push(
-                    //   context,
-                    //   CupertinoPageRoute(
-                    //       builder: (c) => RouteOptionPage(
-                    //             address: address,
-                    //             latitude: result['lat'],
-                    //             longitude: result['lng'],
-                    //           )),
-                    // );
+                  onTap: () async {
+                    bool isTracking = await _databaseService.isTrackingNow(uid);
+                    if (isTracking) {
+                      var toast = getToast(context);
+                      toastification.dismissAll();
+                      toast.start();
+                    } else {
+                      FocusScope.of(context).unfocus();
+                      defaultState.setName(name);
+                      defaultState.setAddress(address);
+                      defaultState.setLatitude(result['lat']);
+                      defaultState.setLongitude(result['lng']);
+                      Navigator.pushNamed(context, '/routeoption');
+                    }
                   },
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
@@ -166,4 +182,33 @@ class _SearchMapPageState extends State<SearchMapPage> {
             ),
     );
   }
+}
+
+ToastificationItem getToast(BuildContext context) {
+  return toastification.show(
+    context: context,
+    type: ToastificationType.info,
+    style: ToastificationStyle.flat,
+    title: const Text("진행 중인 귀가 정보가 이미 있습니다"),
+    alignment: Alignment.bottomCenter,
+    autoCloseDuration: const Duration(seconds: 3),
+    animationBuilder: (
+      context,
+      animation,
+      alignment,
+      child,
+    ) {
+      return FadeTransition(
+        opacity: animation,
+        child: child,
+      );
+    },
+    borderRadius: BorderRadius.circular(12.0),
+    closeButtonShowType: CloseButtonShowType.none,
+    showProgressBar: false,
+    margin: const EdgeInsets.fromLTRB(0, 0, 0, 5),
+    closeOnClick: true,
+    dragToClose: true,
+    dismissDirection: DismissDirection.startToEnd,
+  );
 }
