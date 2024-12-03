@@ -1,7 +1,10 @@
+import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:moblie_app_project/provider/defaultState.dart';
+import 'package:moblie_app_project/tracking/widgets/map.dart';
 import 'package:provider/provider.dart';
 
 class TrackingPage extends StatefulWidget {
@@ -17,6 +20,7 @@ class _TrackingPageState extends State<TrackingPage> {
   @override
   Widget build(BuildContext context) {
     var defaultState = context.watch<Defaultstate>();
+    LatLng destination = LatLng(defaultState.latitude, defaultState.longitude);
 
     return Scaffold(
       appBar: AppBar(
@@ -26,10 +30,13 @@ class _TrackingPageState extends State<TrackingPage> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: double.infinity,
-            height: 400,
-            color: Colors.black38,
+          Expanded(
+            child: RouteMap(
+              destination: destination, // 샌프란시스코 좌표
+              onRouteLoaded: () {
+                print('Route loaded successfully');
+              },
+            ),
           ),
           Padding(
             padding: const EdgeInsets.all(20),
