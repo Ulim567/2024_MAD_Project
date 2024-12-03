@@ -1,11 +1,11 @@
-import 'package:firebase_ui_auth/firebase_ui_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
-import 'package:moblie_app_project/provider/defaultState.dart';
 import 'package:moblie_app_project/tracking/widgets/map.dart';
-import 'package:provider/provider.dart';
+
+import '../provider/dbservice.dart';
 
 class TrackingPage extends StatefulWidget {
   const TrackingPage({super.key});
@@ -16,57 +16,92 @@ class TrackingPage extends StatefulWidget {
 
 class _TrackingPageState extends State<TrackingPage> {
   final _key = GlobalKey<ExpandableFabState>();
+  final DatabaseService _databaseService = DatabaseService();
 
   @override
   Widget build(BuildContext context) {
-    var defaultState = context.watch<Defaultstate>();
-    LatLng destination = LatLng(defaultState.latitude, defaultState.longitude);
+    final User? user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) {
+      return const Scaffold(
+        body: Center(
+          child: Text(
+            '사용자가 로그인되지 않았습니다.',
+            style: TextStyle(fontSize: 18),
+          ),
+        ),
+      );
+    }
+
+    final String uid = user.uid;
+    // var defaultState = context.watch<Defaultstate>();
+    // LatLng destination = LatLng(defaultState.latitude, defaultState.longitude);
 
     return Scaffold(
       appBar: AppBar(
         title: const Text("귀가중..."),
         centerTitle: true,
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: RouteMap(
-              destination: destination, // 샌프란시스코 좌표
-              onRouteLoaded: () {
-                print('Route loaded successfully');
-              },
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
+      body: StreamBuilder<Map<String, dynamic>>(
+          stream: _databaseService.getTrackingInfo(uid),
+          builder: (context, snapshot) {
+            if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            }
+
+            if (!snapshot.hasData) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            Map<String, dynamic>? info = snapshot.data;
+            if (info == null) {
+              return const Center(child: Text('info is null'));
+            }
+
+            Map<String, dynamic> dst = info['destination'];
+
+            LatLng destination = LatLng(dst['latitude'], dst['longitude']);
+            return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  "도착 설정 시간",
-                  style: TextStyle(fontSize: 20),
+                Expanded(
+                  child: RouteMap(
+                    destination: destination, // 샌프란시스코 좌표
+                    onRouteLoaded: () {
+                      print('Route loaded successfully');
+                    },
+                  ),
                 ),
-                Text(
-                  DateFormat('HH시 mm분').format(defaultState.selectedTime),
-                  style: const TextStyle(fontSize: 25),
-                ),
-                const Text(
-                  "현재 도착 예정 시간 19시 13분", //TODO: 여기 실제 값으로 변경해야함
-                  style: TextStyle(fontSize: 15, color: Colors.black54),
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Text(
-                  defaultState.address,
-                  style: const TextStyle(fontSize: 18),
+                Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "도착 설정 시간",
+                        style: TextStyle(fontSize: 20),
+                      ),
+                      Text(
+                        DateFormat('HH시 mm분').format(dst['time'].toDate()),
+                        style: const TextStyle(fontSize: 25),
+                      ),
+                      const Text(
+                        "현재 도착 예정 시간 19시 13분", //TODO: 여기 실제 값으로 변경해야함
+                        style: TextStyle(fontSize: 15, color: Colors.black54),
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      Text(
+                        "${dst['address']} ${dst['name']}",
+                        style: const TextStyle(fontSize: 18),
+                      ),
+                    ],
+                  ),
                 ),
               ],
-            ),
-          ),
-        ],
-      ),
+            );
+          }),
       floatingActionButtonLocation: ExpandableFab.location,
       floatingActionButton: ExpandableFab(
         key: _key,

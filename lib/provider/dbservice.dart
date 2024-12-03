@@ -253,22 +253,28 @@ class DatabaseService with ChangeNotifier {
   }
 
   Future<void> sendTrackingInfo(
-      String uid,
-      DateTime time,
-      String locationName,
-      String address,
-      double latitude,
-      double longitude,
-      List<Map<String, dynamic>> friends) async {
+    String uid,
+    List<Map<String, dynamic>> friends,
+    String locationName,
+    String address,
+    double latitude,
+    double longitude,
+    Timestamp time,
+    List<Map<String, dynamic>> records,
+  ) async {
     try {
+      Map<String, dynamic> destination = {
+        'name': locationName,
+        'address': address,
+        'latitude': latitude,
+        'longitude': longitude,
+        'time': time,
+      };
       Map<String, dynamic> trackingInfo = {
         'trackingInfo': {
-          'time': time,
-          'locationName': locationName,
-          'address': address,
-          'latitude': latitude,
-          'longitude': longitude,
           'friends': friends,
+          'destination': destination,
+          'records': records,
         }
       };
 
@@ -277,6 +283,32 @@ class DatabaseService with ChangeNotifier {
       if (kDebugMode) {
         print(e);
       }
+    }
+  }
+
+  Stream<Map<String, dynamic>> getTrackingInfo(String? uid) {
+    try {
+      if (uid == null) {
+        // uid가 null이면 빈 Map을 반환하는 Stream을 반환
+        return Stream.value({});
+      }
+
+      // Firestore에서 해당 UID에 해당하는 문서를 스트림으로 가져오기
+      return _userCollection.doc(uid).snapshots().map((snapshot) {
+        if (snapshot.exists && snapshot.data() != null) {
+          Map<String, dynamic> userInfo = snapshot.get('trackingInfo');
+          return userInfo;
+        } else {
+          return {}; // 데이터가 없으면 빈 Map 반환
+        }
+      });
+    } catch (e) {
+      if (kDebugMode) {
+        print(e);
+        print("Exception");
+      }
+
+      return Stream.value({}); // 예외가 발생한 경우 빈 Map을 반환
     }
   }
 }

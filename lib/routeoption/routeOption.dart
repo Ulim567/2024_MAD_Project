@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:moblie_app_project/provider/defaultState.dart';
@@ -117,12 +118,13 @@ class _RouteOptionPageState extends State<RouteOptionPage> {
                         if (index == pages.length - 1) {
                           await _databaseService.sendTrackingInfo(
                               uid,
-                              defaultState.selectedTime,
+                              defaultState.selectedFriends,
                               defaultState.name,
                               defaultState.address,
                               defaultState.latitude,
                               defaultState.longitude,
-                              defaultState.selectedFriends);
+                              Timestamp.fromDate(defaultState.selectedTime),
+                              []);
                           Navigator.pushNamed(context, '/tracking');
                         } else {
                           setState(() {
