@@ -8,7 +8,7 @@ class Defaultstate extends ChangeNotifier {
   double longitude = 0;
 
   DateTime selectedTime = DateTime.now();
-  List<String> selectedFriends = [];
+  List<Map<String, dynamic>> selectedFriends = [];
   void setName(String input) {
     name = input;
     notifyListeners();
@@ -34,13 +34,15 @@ class Defaultstate extends ChangeNotifier {
     notifyListeners();
   }
 
-  void addSelectedFriends(String friend) {
+  void addSelectedFriends(Map<String, dynamic> friend) {
     selectedFriends.add(friend);
     notifyListeners();
   }
 
-  void deleteSelectedFriends(String friend) {
-    selectedFriends.remove(friend);
+  void deleteSelectedFriends(Map<String, dynamic> friend) {
+    selectedFriends.removeWhere(
+        (selectedFriend) => selectedFriend['uid'] == friend['uid']);
+
     notifyListeners();
   }
 }
