@@ -11,7 +11,7 @@ class FinalconfirmWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     var defaultState = context.watch<Defaultstate>();
 
-    String location = "한동대학교"; // TODO: 이거 바꾸기!!!
+    String location = defaultState.name; // TODO: 이거 바꾸기!!!
 
     List<String> friends = defaultState.selectedFriends;
     String friendsStirng = "";

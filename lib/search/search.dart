@@ -97,9 +97,11 @@ class _SearchMapPageState extends State<SearchMapPage> {
               itemCount: searchResults.length,
               itemBuilder: (BuildContext ctx, int idx) {
                 final result = searchResults[idx];
+                final name = result['name'] ?? '';
                 final address = result['address'] ?? ''; // 상세 주소 (없을 경우 빈 문자열)
                 return InkWell(
                   onTap: () {
+                    defaultState.setName(name);
                     defaultState.setAddress(address);
                     defaultState.setLatitude(result['lat']);
                     defaultState.setLongitude(result['lng']);
