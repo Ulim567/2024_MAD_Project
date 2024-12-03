@@ -251,4 +251,32 @@ class DatabaseService with ChangeNotifier {
       }
     }
   }
+
+  Future<void> sendTrackingInfo(
+      String uid,
+      DateTime time,
+      String locationName,
+      String address,
+      double latitude,
+      double longitude,
+      List<Map<String, dynamic>> friends) async {
+    try {
+      Map<String, dynamic> trackingInfo = {
+        'trackingInfo': {
+          'time': time,
+          'locationName': locationName,
+          'address': address,
+          'latitude': latitude,
+          'longitude': longitude,
+          'friends': friends,
+        }
+      };
+
+      await _userCollection.doc(uid).update(trackingInfo);
+    } catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
+    }
+  }
 }
