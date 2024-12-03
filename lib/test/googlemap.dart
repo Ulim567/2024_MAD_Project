@@ -27,6 +27,7 @@
 //   @override
 //   void initState() {
 //     super.initState();
+//     _getLocation();
 //   }
 
 //   Future<void> _getRoute() async {
