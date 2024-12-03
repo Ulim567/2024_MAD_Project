@@ -152,15 +152,32 @@ class _CurrentStatePageState extends State<CurrentStatePage> {
                                 closeOnClick: true,
                                 dragToClose: true,
                                 dismissDirection: DismissDirection.startToEnd,
+                                callbacks: ToastificationCallbacks(
+                                  onTap: (toastItem) => {
+                                    setState(() {
+                                      isButtonDisabled = false;
+                                    })
+                                  },
+                                  onAutoCompleteCompleted: (toastItem) => {
+                                    setState(() {
+                                      isButtonDisabled = false;
+                                    })
+                                  },
+                                  onDismissed: (toastItem) => {
+                                    setState(() {
+                                      isButtonDisabled = false;
+                                    })
+                                  },
+                                ),
                               );
 
-                              Future.delayed(const Duration(seconds: 3), () {
-                                print("Delaying....");
-                                setState(() {
-                                  isButtonDisabled = false;
-                                  print("false");
-                                });
-                              });
+                              // Future.delayed(const Duration(seconds: 3), () {
+                              //   print("Delaying....");
+                              //   setState(() {
+                              //     isButtonDisabled = false;
+                              //     print("false");
+                              //   });
+                              // });
                             }
                           },
                           icon: Badge(
