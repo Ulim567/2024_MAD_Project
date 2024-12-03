@@ -21,15 +21,16 @@ class _RouteMapState extends State<RouteMap> {
   late GoogleMapController _mapController;
   LatLng _currentLatLng =
       const LatLng(36.0821603, 129.398434); // Default location
-  bool _isLocationLoaded = true;
+  bool _isLocationLoaded = false;
   List<LatLng> _polylinePoints = [];
   final TmapDirectionsService _directionsService = TmapDirectionsService();
 
   @override
   void initState() {
-    // _getLocation();
     super.initState();
-    _getRoute();
+    _getLocation().then((_) {
+      _getRoute();
+    });
   }
 
   // Fetch route from current location to destination
