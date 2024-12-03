@@ -69,7 +69,6 @@ class _CurrentStatePageState extends State<CurrentStatePage> {
     ));
   }
 
-  bool isButtonDisabled = false;
   @override
   Widget build(BuildContext context) {
     final User? user = FirebaseAuth.instance.currentUser;
@@ -118,66 +117,9 @@ class _CurrentStatePageState extends State<CurrentStatePage> {
                             if (isTracking) {
                               Navigator.pushNamed(context, '/tracking');
                             } else {
-                              print(
-                                  "Disabled? : " + isButtonDisabled.toString());
-                              if (isButtonDisabled) return;
-
-                              setState(() {
-                                isButtonDisabled = true;
-                                print("true");
-                              });
-
-                              toastification.show(
-                                context: context,
-                                type: ToastificationType.info,
-                                style: ToastificationStyle.flat,
-                                title: const Text("진행 중인 귀가 정보가 없습니다"),
-                                alignment: Alignment.bottomCenter,
-                                autoCloseDuration: const Duration(seconds: 3),
-                                animationBuilder: (
-                                  context,
-                                  animation,
-                                  alignment,
-                                  child,
-                                ) {
-                                  return FadeTransition(
-                                    opacity: animation,
-                                    child: child,
-                                  );
-                                },
-                                borderRadius: BorderRadius.circular(12.0),
-                                closeButtonShowType: CloseButtonShowType.none,
-                                showProgressBar: false,
-                                margin: const EdgeInsets.fromLTRB(0, 0, 0, 80),
-                                closeOnClick: true,
-                                dragToClose: true,
-                                dismissDirection: DismissDirection.startToEnd,
-                                callbacks: ToastificationCallbacks(
-                                  onTap: (toastItem) => {
-                                    setState(() {
-                                      isButtonDisabled = false;
-                                    })
-                                  },
-                                  onAutoCompleteCompleted: (toastItem) => {
-                                    setState(() {
-                                      isButtonDisabled = false;
-                                    })
-                                  },
-                                  onDismissed: (toastItem) => {
-                                    setState(() {
-                                      isButtonDisabled = false;
-                                    })
-                                  },
-                                ),
-                              );
-
-                              // Future.delayed(const Duration(seconds: 3), () {
-                              //   print("Delaying....");
-                              //   setState(() {
-                              //     isButtonDisabled = false;
-                              //     print("false");
-                              //   });
-                              // });
+                              var toast = getToast(context);
+                              toastification.dismissAll();
+                              toast.start();
                             }
                           },
                           icon: Badge(
@@ -209,4 +151,33 @@ class _CurrentStatePageState extends State<CurrentStatePage> {
       ),
     );
   }
+}
+
+ToastificationItem getToast(BuildContext context) {
+  return toastification.show(
+    context: context,
+    type: ToastificationType.info,
+    style: ToastificationStyle.flat,
+    title: const Text("진행 중인 귀가 정보가 이미 있습니다"),
+    alignment: Alignment.bottomCenter,
+    autoCloseDuration: const Duration(seconds: 3),
+    animationBuilder: (
+      context,
+      animation,
+      alignment,
+      child,
+    ) {
+      return FadeTransition(
+        opacity: animation,
+        child: child,
+      );
+    },
+    borderRadius: BorderRadius.circular(12.0),
+    closeButtonShowType: CloseButtonShowType.none,
+    showProgressBar: false,
+    margin: const EdgeInsets.fromLTRB(0, 0, 0, 80),
+    closeOnClick: true,
+    dragToClose: true,
+    dismissDirection: DismissDirection.startToEnd,
+  );
 }
