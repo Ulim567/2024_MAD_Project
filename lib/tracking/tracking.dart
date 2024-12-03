@@ -161,7 +161,7 @@ class _TrackingPageState extends State<TrackingPage> {
                 onPressed: () {
                   final state = _key.currentState;
                   if (state != null) {
-                    _dialogBuilder(context);
+                    _dialogBuilder(context, _databaseService, uid);
                     state.toggle();
                   }
                 },
@@ -196,7 +196,8 @@ class _TrackingPageState extends State<TrackingPage> {
   }
 }
 
-Future<void> _dialogBuilder(BuildContext context) {
+Future<void> _dialogBuilder(
+    BuildContext context, DatabaseService databaseService, String uid) {
   return showDialog<void>(
     context: context,
     builder: (BuildContext context) {
@@ -235,7 +236,8 @@ Future<void> _dialogBuilder(BuildContext context) {
               textStyle: Theme.of(context).textTheme.labelLarge,
             ),
             child: const Text('종료하기'),
-            onPressed: () {
+            onPressed: () async {
+              await databaseService.deleteTrackingInfo(uid);
               Navigator.pushNamedAndRemoveUntil(
                 context,
                 '/finishTracking', // 이동하려는 경로

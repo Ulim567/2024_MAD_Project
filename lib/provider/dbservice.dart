@@ -311,4 +311,43 @@ class DatabaseService with ChangeNotifier {
       return Stream.value({}); // 예외가 발생한 경우 빈 Map을 반환
     }
   }
+
+  Future<bool> isTrackingNow(String? uid) async {
+    try {
+      if (uid == null) {
+        return false;
+      }
+
+      DocumentSnapshot snapshot = await _userCollection.doc(uid).get();
+      if (snapshot.exists && snapshot.data() != null) {
+        Map<String, dynamic>? data = snapshot.data() as Map<String, dynamic>?;
+        return (data != null && data.containsKey('trackingInfo'));
+      } else {
+        return false;
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
+
+      return false;
+    }
+  }
+
+  Future<void> deleteTrackingInfo(String? uid) async {
+    try {
+      if (uid == null) {
+        return;
+      }
+      await FirebaseFirestore.instance.collection('users').doc(uid).update({
+        'trackingInfo': FieldValue.delete(),
+      });
+    } catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
+
+      return;
+    }
+  }
 }
