@@ -392,4 +392,41 @@ class DatabaseService with ChangeNotifier {
       return;
     }
   }
+
+  Future<void> addRecordToTrackingInfo(
+      String uid, Map<String, dynamic> newRecord) async {
+    try {
+      // Firestore document reference
+      DocumentReference userDocRef = _userCollection.doc(uid);
+
+      // Add the new record to the records field in trackingInfo
+      await userDocRef.update({
+        'trackingInfo.records': FieldValue.arrayUnion([newRecord]),
+      });
+
+      if (kDebugMode) {
+        print("New record added to trackingInfo for user: $uid");
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print("Error adding record to trackingInfo: $e");
+      }
+    }
+  }
+
+  Stream<List> getTrackingRecords(String uid) {
+    return _userCollection.doc(uid).snapshots().map((snapshot) {
+      if (snapshot.exists && snapshot.data() != null) {
+        Map<String, dynamic> trackingInfo = snapshot.get('trackingInfo') ?? {};
+        // Return the records list if exists, or an empty list if not
+        return List<Map<String, dynamic>>.from(trackingInfo['records'] ?? []);
+      } else {
+        return []; // Return empty list if no data found
+      }
+    }).handleError((e) {
+      if (kDebugMode) {
+        print("Error streaming tracking records: $e");
+      }
+    });
+  }
 }

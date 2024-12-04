@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -26,7 +27,7 @@ class _RouteMapState extends State<RouteMap> {
   late GoogleMapController _mapController;
   LatLng _currentLatLng =
       const LatLng(36.0821603, 129.398434); // Default location Default location
-  LatLng _trackingLatLng = LatLng(36.0821603, 129.398434);
+  // LatLng _trackingLatLng = LatLng(36.0821603, 129.398434);
   bool _isLocationLoaded = false;
   bool _isTrackingEnabled = false; // Tracking state
   StreamSubscription<Position>? _positionStream;
@@ -124,7 +125,7 @@ class _RouteMapState extends State<RouteMap> {
     setState(() {
       _currentLatLng =
           LatLng(currentPosition.latitude, currentPosition.longitude);
-      _trackingLatLng = _currentLatLng;
+      // _trackingLatLng = _currentLatLng;
       _isLocationLoaded = true;
     });
     final String uid = user!.uid;
@@ -173,11 +174,22 @@ class _RouteMapState extends State<RouteMap> {
           accuracy: LocationAccuracy.high,
           distanceFilter: 0, // Update only when moving
         ),
-      ).listen((Position position) {
+      ).listen((Position position) async {
         final newLatLng = LatLng(position.latitude, position.longitude);
+        final currentTime = Timestamp.now(); // 현재 시간
+        final String uid = user!.uid;
+        // 새로운 위치 기록 생성
+        Map<String, dynamic> newRecord = {
+          'latitude': position.latitude,
+          'longitude': position.longitude,
+          'time': currentTime,
+        };
+
+        // Firestore에 위치 기록 추가
+        await _databaseService.addRecordToTrackingInfo(uid, newRecord);
 
         setState(() {
-          _trackingLatLng = newLatLng;
+          // _trackingLatLng = newLatLng;
           // 트래킹용 빨간 원을 업데이트
           _trackingCircle = Circle(
             circleId: const CircleId('tracking'),
@@ -213,7 +225,7 @@ class _RouteMapState extends State<RouteMap> {
                   ? GoogleMap(
                       onMapCreated: _onMapCreated,
                       initialCameraPosition: CameraPosition(
-                        target: _trackingLatLng,
+                        target: _currentLatLng,
                         zoom: 11.0,
                       ),
                       markers: {
