@@ -1,9 +1,11 @@
 import 'dart:async';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:moblie_app_project/api/tmap_directions_service.dart';
+import 'package:moblie_app_project/provider/dbservice.dart';
 
 class RouteMap extends StatefulWidget {
   final LatLng destination;
@@ -20,6 +22,7 @@ class RouteMap extends StatefulWidget {
 }
 
 class _RouteMapState extends State<RouteMap> {
+  final DatabaseService _databaseService = DatabaseService();
   late GoogleMapController _mapController;
   LatLng _currentLatLng =
       const LatLng(36.0821603, 129.398434); // Default location
@@ -28,6 +31,7 @@ class _RouteMapState extends State<RouteMap> {
   StreamSubscription<Position>? _positionStream;
   List<LatLng> _polylinePoints = [];
   final TmapDirectionsService _directionsService = TmapDirectionsService();
+  final User? user = FirebaseAuth.instance.currentUser;
 
   @override
   void initState() {
@@ -118,6 +122,9 @@ class _RouteMapState extends State<RouteMap> {
           LatLng(currentPosition.latitude, currentPosition.longitude);
       _isLocationLoaded = true;
     });
+    final String uid = user!.uid;
+    await _databaseService.sendTrackingStartInfo(
+        uid, _currentLatLng.latitude, _currentLatLng.longitude);
   }
 
   void _onMapCreated(GoogleMapController controller) {
@@ -230,18 +237,6 @@ class _RouteMapState extends State<RouteMap> {
                     ),
             ),
           ],
-        ),
-        Positioned(
-          right: 120,
-          left: 120,
-          bottom: 30,
-          child: FloatingActionButton(
-            onPressed: _toggleTracking,
-            backgroundColor: _isTrackingEnabled ? Colors.red : Colors.blue,
-            child: Icon(_isTrackingEnabled
-                ? Icons.pause
-                : Icons.my_location), // Toggle icon
-          ),
         ),
       ],
     );

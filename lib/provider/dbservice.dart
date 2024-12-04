@@ -286,6 +286,48 @@ class DatabaseService with ChangeNotifier {
     }
   }
 
+  Future<void> sendTrackingStartInfo(
+    String uid,
+    double latitude,
+    double longitude,
+  ) async {
+    try {
+      // 문서를 먼저 가져옵니다.
+      DocumentSnapshot doc = await _userCollection.doc(uid).get();
+
+      // data()를 Map<String, dynamic>으로 캐스팅
+      Map<String, dynamic>? data = doc.data() as Map<String, dynamic>?;
+
+      // trackingInfo와 start가 이미 있는지 확인
+      Map<String, dynamic>? trackingInfo = data?['trackingInfo'];
+      if (trackingInfo != null && trackingInfo['start'] != null) {
+        if (kDebugMode) {
+          print("start 값이 이미 존재합니다. 업데이트를 건너뜁니다.");
+        }
+        return; // 업데이트하지 않고 종료
+      }
+
+      // 업데이트할 start 값 생성
+      Map<String, dynamic> start = {
+        'latitude': latitude,
+        'longitude': longitude,
+      };
+
+      // Firebase 문서 업데이트
+      await _userCollection.doc(uid).update({
+        'trackingInfo.start': start,
+      });
+
+      if (kDebugMode) {
+        print("start 값이 성공적으로 업데이트되었습니다.");
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print("오류 발생: $e");
+      }
+    }
+  }
+
   Stream<Map<String, dynamic>> getTrackingInfo(String? uid) {
     try {
       if (uid == null) {
