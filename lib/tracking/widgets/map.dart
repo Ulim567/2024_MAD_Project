@@ -1,9 +1,11 @@
 import 'dart:async';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:moblie_app_project/api/tmap_directions_service.dart';
+import 'package:moblie_app_project/provider/dbservice.dart';
 
 class RouteMap extends StatefulWidget {
   final LatLng destination;
@@ -20,20 +22,26 @@ class RouteMap extends StatefulWidget {
 }
 
 class _RouteMapState extends State<RouteMap> {
+  final DatabaseService _databaseService = DatabaseService();
   late GoogleMapController _mapController;
   LatLng _currentLatLng =
-      const LatLng(36.0821603, 129.398434); // Default location
+      const LatLng(36.0821603, 129.398434); // Default location Default location
+  LatLng _trackingLatLng = LatLng(36.0821603, 129.398434);
   bool _isLocationLoaded = false;
   bool _isTrackingEnabled = false; // Tracking state
   StreamSubscription<Position>? _positionStream;
   List<LatLng> _polylinePoints = [];
   final TmapDirectionsService _directionsService = TmapDirectionsService();
-
+  final User? user = FirebaseAuth.instance.currentUser;
+  Circle? _trackingCircle;
   @override
   void initState() {
     super.initState();
     _getLocation().then((_) {
       _getRoute();
+      Future.delayed(Duration(seconds: 1), () {
+        _startTracking();
+      });
     });
   }
 
@@ -116,8 +124,12 @@ class _RouteMapState extends State<RouteMap> {
     setState(() {
       _currentLatLng =
           LatLng(currentPosition.latitude, currentPosition.longitude);
+      _trackingLatLng = _currentLatLng;
       _isLocationLoaded = true;
     });
+    final String uid = user!.uid;
+    await _databaseService.sendTrackingStartInfo(
+        uid, _currentLatLng.latitude, _currentLatLng.longitude);
   }
 
   void _onMapCreated(GoogleMapController controller) {
@@ -147,7 +159,7 @@ class _RouteMapState extends State<RouteMap> {
     return true;
   }
 
-  void _toggleTracking() async {
+  void _startTracking() async {
     if (_isTrackingEnabled) {
       // Stop tracking
       _positionStream?.cancel();
@@ -159,13 +171,22 @@ class _RouteMapState extends State<RouteMap> {
       _positionStream = Geolocator.getPositionStream(
         locationSettings: const LocationSettings(
           accuracy: LocationAccuracy.high,
-          distanceFilter: 2, // Update only when moving 10 meters
+          distanceFilter: 0, // Update only when moving
         ),
       ).listen((Position position) {
         final newLatLng = LatLng(position.latitude, position.longitude);
 
         setState(() {
-          _currentLatLng = newLatLng;
+          _trackingLatLng = newLatLng;
+          // 트래킹용 빨간 원을 업데이트
+          _trackingCircle = Circle(
+            circleId: const CircleId('tracking'),
+            center: newLatLng,
+            radius: 1.0, // 원의 크기
+            fillColor: Colors.red.withOpacity(0.5), // 빨간색
+            strokeColor: Colors.red, // 빨간색 테두리
+            strokeWidth: 2,
+          );
         });
 
         _mapController.animateCamera(
@@ -173,16 +194,12 @@ class _RouteMapState extends State<RouteMap> {
             CameraPosition(
               target: newLatLng,
               zoom: 20.0,
-              bearing: position.heading, // User's heading
+              bearing: position.heading, // 사용자 방향
             ),
           ),
         );
       });
     }
-
-    setState(() {
-      _isTrackingEnabled = !_isTrackingEnabled;
-    });
   }
 
   @override
@@ -196,7 +213,7 @@ class _RouteMapState extends State<RouteMap> {
                   ? GoogleMap(
                       onMapCreated: _onMapCreated,
                       initialCameraPosition: CameraPosition(
-                        target: _currentLatLng,
+                        target: _trackingLatLng,
                         zoom: 11.0,
                       ),
                       markers: {
@@ -224,24 +241,15 @@ class _RouteMapState extends State<RouteMap> {
                             points: _polylinePoints,
                           ),
                       },
+                      circles: _trackingCircle != null
+                          ? {_trackingCircle!} // 트래킹 원이 있을 경우 추가
+                          : {},
                     )
                   : const Center(
                       child: CircularProgressIndicator(),
                     ),
             ),
           ],
-        ),
-        Positioned(
-          right: 120,
-          left: 120,
-          bottom: 30,
-          child: FloatingActionButton(
-            onPressed: _toggleTracking,
-            backgroundColor: _isTrackingEnabled ? Colors.red : Colors.blue,
-            child: Icon(_isTrackingEnabled
-                ? Icons.pause
-                : Icons.my_location), // Toggle icon
-          ),
         ),
       ],
     );
