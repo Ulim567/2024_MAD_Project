@@ -21,6 +21,8 @@ class DatabaseService with ChangeNotifier {
       await _userCollection.doc(uid).set({
         'email': email,
         'name': name,
+        'friend': [],
+        'request': [],
         'createdAt': DateTime.now().toIso8601String(),
         'updatedAt': DateTime.now().toIso8601String(),
       });
@@ -263,6 +265,7 @@ class DatabaseService with ChangeNotifier {
     List<Map<String, dynamic>> records,
   ) async {
     try {
+      // Create destination data
       Map<String, dynamic> destination = {
         'name': locationName,
         'address': address,
@@ -270,6 +273,8 @@ class DatabaseService with ChangeNotifier {
         'longitude': longitude,
         'time': time,
       };
+
+      // Create tracking info data
       Map<String, dynamic> trackingInfo = {
         'trackingInfo': {
           'friends': friends,
@@ -278,7 +283,17 @@ class DatabaseService with ChangeNotifier {
         }
       };
 
+      // Update the main user's tracking info
       await _userCollection.doc(uid).update(trackingInfo);
+
+      // Update each friend's document to include the main user's UID in 'tracking_friends'
+      for (var friend in friends) {
+        String friendUid =
+            friend['uid']; // Assuming 'uid' is a key in the friend map
+        await _userCollection.doc(friendUid).update({
+          'tracking_friends': FieldValue.arrayUnion([uid]),
+        });
+      }
     } catch (e) {
       if (kDebugMode) {
         print(e);
@@ -381,15 +396,39 @@ class DatabaseService with ChangeNotifier {
       if (uid == null) {
         return;
       }
-      await FirebaseFirestore.instance.collection('users').doc(uid).update({
+      final userDoc = await _userCollection.doc(uid).get();
+      if (!userDoc.exists) {
+        return;
+      }
+      final userData = userDoc.data() as Map<String, dynamic>?;
+      if (userData == null) {
+        return;
+      }
+      final trackingInfo = userData['trackingInfo'];
+      if (trackingInfo == null) {
+        return;
+      }
+
+      // Extract friends list from trackingInfo
+      final List<Map<String, dynamic>> friends =
+          List<Map<String, dynamic>>.from(trackingInfo['friends'] ?? []);
+
+      // Remove `uid` from each friend's `tracking_friends`
+      for (var friend in friends) {
+        String friendUid = friend['uid'];
+        await _userCollection.doc(friendUid).update({
+          'tracking_friends': FieldValue.arrayRemove([uid]),
+        });
+      }
+
+      // Delete the user's trackingInfo
+      await _userCollection.doc(uid).update({
         'trackingInfo': FieldValue.delete(),
       });
     } catch (e) {
       if (kDebugMode) {
         print(e);
       }
-
-      return;
     }
   }
 
@@ -427,6 +466,80 @@ class DatabaseService with ChangeNotifier {
       if (kDebugMode) {
         print("Error streaming tracking records: $e");
       }
+    });
+  }
+
+  Stream<List<Map<String, dynamic>>> trackFriendsTrackingInfo(String uid) {
+    return _userCollection
+        .doc(uid)
+        .snapshots()
+        .asyncExpand((userSnapshot) async* {
+      if (!userSnapshot.exists) {
+        yield [];
+        return;
+      }
+
+      // Get the user's tracking_friends list
+      final userData = userSnapshot.data() as Map<String, dynamic>?;
+      if (userData == null) {
+        yield [];
+        return;
+      }
+
+      final List<dynamic> trackingFriends = userData['tracking_friends'] ?? [];
+
+      // Fetch destination and name for each friend in parallel
+      final List<Future<Map<String, dynamic>?>> friendTrackingFutures =
+          trackingFriends.map((friendUid) async {
+        final friendSnapshot = await _userCollection.doc(friendUid).get();
+        if (friendSnapshot.exists) {
+          final friendData = friendSnapshot.data() as Map<String, dynamic>?;
+          if (friendData != null) {
+            final trackingInfo =
+                friendData['trackingInfo'] as Map<String, dynamic>?;
+            final destination =
+                trackingInfo?['destination'] as Map<String, dynamic>?;
+            final name = friendData['name'] as String?;
+
+            if (destination != null && name != null) {
+              return {
+                'uid': friendUid,
+                'name': name,
+                'destination': destination,
+              };
+            }
+          }
+        }
+        return null;
+      }).toList();
+
+      // Wait for all futures and filter out nulls
+      final List<Map<String, dynamic>> friendsTrackingInfo =
+          (await Future.wait(friendTrackingFutures))
+              .whereType<Map<String, dynamic>>()
+              .toList();
+
+      yield friendsTrackingInfo;
+    });
+  }
+
+  Stream<Map<String, dynamic>?> trackFriendTrackingInfo(String friendUid) {
+    return _userCollection
+        .doc(friendUid)
+        .snapshots()
+        .asyncMap((friendSnapshot) async {
+      if (!friendSnapshot.exists) {
+        return null;
+      }
+
+      // Get the friend's tracking info
+      final friendData = friendSnapshot.data() as Map<String, dynamic>?;
+      if (friendData == null) {
+        return null;
+      }
+
+      final trackingInfo = friendData['trackingInfo'] as Map<String, dynamic>?;
+      return trackingInfo;
     });
   }
 }
