@@ -263,6 +263,7 @@ class DatabaseService with ChangeNotifier {
     List<Map<String, dynamic>> records,
   ) async {
     try {
+      // Create destination data
       Map<String, dynamic> destination = {
         'name': locationName,
         'address': address,
@@ -270,6 +271,8 @@ class DatabaseService with ChangeNotifier {
         'longitude': longitude,
         'time': time,
       };
+
+      // Create tracking info data
       Map<String, dynamic> trackingInfo = {
         'trackingInfo': {
           'friends': friends,
@@ -278,7 +281,17 @@ class DatabaseService with ChangeNotifier {
         }
       };
 
+      // Update the main user's tracking info
       await _userCollection.doc(uid).update(trackingInfo);
+
+      // Update each friend's document to include the main user's UID in 'tracking_friends'
+      for (var friend in friends) {
+        String friendUid =
+            friend['uid']; // Assuming 'uid' is a key in the friend map
+        await _userCollection.doc(friendUid).update({
+          'tracking_friends': FieldValue.arrayUnion([uid]),
+        });
+      }
     } catch (e) {
       if (kDebugMode) {
         print(e);
@@ -381,15 +394,39 @@ class DatabaseService with ChangeNotifier {
       if (uid == null) {
         return;
       }
-      await FirebaseFirestore.instance.collection('users').doc(uid).update({
+      final userDoc = await _userCollection.doc(uid).get();
+      if (!userDoc.exists) {
+        return;
+      }
+      final userData = userDoc.data() as Map<String, dynamic>?;
+      if (userData == null) {
+        return;
+      }
+      final trackingInfo = userData['trackingInfo'];
+      if (trackingInfo == null) {
+        return;
+      }
+
+      // Extract friends list from trackingInfo
+      final List<Map<String, dynamic>> friends =
+          List<Map<String, dynamic>>.from(trackingInfo['friends'] ?? []);
+
+      // Remove `uid` from each friend's `tracking_friends`
+      for (var friend in friends) {
+        String friendUid = friend['uid'];
+        await _userCollection.doc(friendUid).update({
+          'tracking_friends': FieldValue.arrayRemove([uid]),
+        });
+      }
+
+      // Delete the user's trackingInfo
+      await _userCollection.doc(uid).update({
         'trackingInfo': FieldValue.delete(),
       });
     } catch (e) {
       if (kDebugMode) {
         print(e);
       }
-
-      return;
     }
   }
 
