@@ -1,6 +1,7 @@
 import 'package:auto_size_text_plus/auto_size_text_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:moblie_app_project/friend_tracking/friendtracking.dart';
 import 'package:toastification/toastification.dart';
 
 import '../../provider/dbservice.dart';
@@ -15,7 +16,8 @@ class CurrentStatePage extends StatefulWidget {
 class _CurrentStatePageState extends State<CurrentStatePage> {
   final DatabaseService _databaseService = DatabaseService();
 
-  Widget stateInfoCard(String name, String locationDetail, String location) {
+  Widget stateInfoCard(
+      String uid, String name, String locationDetail, String location) {
     return Card(
         child: Padding(
       padding: const EdgeInsets.fromLTRB(12, 15, 15, 10),
@@ -58,7 +60,18 @@ class _CurrentStatePageState extends State<CurrentStatePage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    TextButton(onPressed: () {}, child: const Text("확인하기")),
+                    TextButton(
+                        onPressed: () {
+                          print("Click");
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  FriendTrackingPage(friendUid: uid),
+                            ),
+                          );
+                        },
+                        child: const Text("확인하기")),
                   ],
                 )
               ],
@@ -153,13 +166,14 @@ class _CurrentStatePageState extends State<CurrentStatePage> {
                     itemCount: friendsTrackingInfo.length,
                     itemBuilder: (context, index) {
                       final friend = friendsTrackingInfo[index];
+                      final uid = friend['uid'] ?? 'Unknown';
                       final name = friend['name'] ?? 'Unknown';
                       final destination =
                           friend['destination']?['address'] ?? 'Unknown';
                       final location =
                           friend['destination']?['name'] ?? 'Unknown';
 
-                      return stateInfoCard(name, destination, location);
+                      return stateInfoCard(uid, name, destination, location);
                     },
                   );
                 },

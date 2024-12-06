@@ -501,6 +501,7 @@ class DatabaseService with ChangeNotifier {
 
             if (destination != null && name != null) {
               return {
+                'uid': friendUid,
                 'name': name,
                 'destination': destination,
               };
@@ -517,6 +518,26 @@ class DatabaseService with ChangeNotifier {
               .toList();
 
       yield friendsTrackingInfo;
+    });
+  }
+
+  Stream<Map<String, dynamic>?> trackFriendTrackingInfo(String friendUid) {
+    return _userCollection
+        .doc(friendUid)
+        .snapshots()
+        .asyncMap((friendSnapshot) async {
+      if (!friendSnapshot.exists) {
+        return null;
+      }
+
+      // Get the friend's tracking info
+      final friendData = friendSnapshot.data() as Map<String, dynamic>?;
+      if (friendData == null) {
+        return null;
+      }
+
+      final trackingInfo = friendData['trackingInfo'] as Map<String, dynamic>?;
+      return trackingInfo;
     });
   }
 }

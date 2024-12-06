@@ -107,7 +107,7 @@ class _TrackingPageState extends State<TrackingPage> {
                       Text(
                         (hours == 0)
                             ? "현재 남은 시간 00:$minutes"
-                            : "현재 남은 시간 $hours:$minutes", //TODO: 여기 실제 값으로 변경해야함
+                            : "현재 남은 시간 $hours:$minutes",
                         style: const TextStyle(
                             fontSize: 15, color: Colors.black54),
                       ),
