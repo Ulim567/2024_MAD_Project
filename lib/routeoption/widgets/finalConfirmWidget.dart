@@ -14,13 +14,17 @@ class FinalconfirmWidget extends StatelessWidget {
     String location = defaultState.name;
 
     List<Map<String, dynamic>> friends = defaultState.selectedFriends;
-    String friendsStirng = "";
+    String friendsString = "없음";
+
+    if (friends.isNotEmpty) {
+      friendsString = "";
+    }
 
     for (int i = 0; i < friends.length; i++) {
       if (i == friends.length - 1) {
-        friendsStirng = friendsStirng + friends[i]['name'].toString();
+        friendsString = friendsString + friends[i]['name'].toString();
       } else {
-        friendsStirng = "$friendsStirng${friends[i]}, ";
+        friendsString = "$friendsString${friends[i]['name'].toString()}, ";
       }
     }
 
@@ -101,7 +105,7 @@ class FinalconfirmWidget extends StatelessWidget {
             ),
             Expanded(
               child: AutoSizeText(
-                friendsStirng,
+                friendsString,
                 maxLines: 4,
                 minFontSize: 18,
                 overflow: TextOverflow.ellipsis,

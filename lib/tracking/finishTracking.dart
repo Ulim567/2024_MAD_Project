@@ -6,6 +6,7 @@ class FinishtrackingPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: const Text("귀가 완료"),
         automaticallyImplyLeading: false,

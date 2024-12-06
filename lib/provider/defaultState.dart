@@ -45,4 +45,14 @@ class Defaultstate extends ChangeNotifier {
 
     notifyListeners();
   }
+
+  void resetState() {
+    name = "";
+    address = "";
+    latitude = 0;
+    longitude = 0;
+
+    selectedTime = DateTime.now();
+    selectedFriends = [];
+  }
 }

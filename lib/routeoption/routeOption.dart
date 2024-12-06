@@ -41,6 +41,7 @@ class _RouteOptionPageState extends State<RouteOptionPage> {
 
     if (user == null) {
       return const Scaffold(
+        resizeToAvoidBottomInset: false,
         body: Center(
           child: Text(
             '사용자가 로그인되지 않았습니다.',
@@ -66,6 +67,13 @@ class _RouteOptionPageState extends State<RouteOptionPage> {
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: Text(appBarTitle),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            defaultState.resetState();
+            Navigator.pop(context);
+          },
+        ),
         centerTitle: true,
         shape: const Border(
           bottom: BorderSide(
@@ -109,6 +117,8 @@ class _RouteOptionPageState extends State<RouteOptionPage> {
                               defaultState.longitude,
                               Timestamp.fromDate(defaultState.selectedTime),
                               []);
+
+                          defaultState.resetState();
                           Navigator.pushNamed(context, '/tracking');
                         } else {
                           setState(() {

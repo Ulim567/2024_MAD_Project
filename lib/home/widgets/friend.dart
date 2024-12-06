@@ -21,6 +21,7 @@ class _FriendPageState extends State<FriendPage> {
 
     if (user == null) {
       return const Scaffold(
+        resizeToAvoidBottomInset: false,
         body: Center(
           child: Text(
             '사용자가 로그인되지 않았습니다.',

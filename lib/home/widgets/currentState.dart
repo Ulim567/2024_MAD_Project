@@ -88,6 +88,7 @@ class _CurrentStatePageState extends State<CurrentStatePage> {
 
     if (user == null) {
       return const Scaffold(
+        resizeToAvoidBottomInset: false,
         body: Center(
           child: Text(
             '사용자가 로그인되지 않았습니다.',
@@ -99,6 +100,7 @@ class _CurrentStatePageState extends State<CurrentStatePage> {
     final String uid = user.uid;
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Padding(
         padding: const EdgeInsets.fromLTRB(32, 32, 32, 0),
         child: Column(

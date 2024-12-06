@@ -24,6 +24,7 @@ class _TrackingPageState extends State<TrackingPage> {
 
     if (user == null) {
       return const Scaffold(
+        resizeToAvoidBottomInset: false,
         body: Center(
           child: Text(
             '사용자가 로그인되지 않았습니다.',
@@ -38,6 +39,7 @@ class _TrackingPageState extends State<TrackingPage> {
     // LatLng destination = LatLng(defaultState.latitude, defaultState.longitude);
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: const Text("귀가중..."),
         centerTitle: true,
@@ -73,13 +75,6 @@ class _TrackingPageState extends State<TrackingPage> {
             LatLng destination = LatLng(dst['latitude'], dst['longitude']);
             String time = DateFormat('HH시 mm분').format(dst['time'].toDate());
 
-            DateTime selectedTime = dst['time'].toDate();
-            Duration difference = DateTime.now().difference(selectedTime);
-
-            // Duration에서 원하는 정보를 추출
-            int hours = difference.inHours; // 총 시간 차
-            int minutes = difference.inMinutes % 60; // 남은 분
-
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -104,19 +99,13 @@ class _TrackingPageState extends State<TrackingPage> {
                         time,
                         style: const TextStyle(fontSize: 25),
                       ),
-                      Text(
-                        (hours == 0)
-                            ? "현재 남은 시간 00:$minutes"
-                            : "현재 남은 시간 $hours:$minutes",
-                        style: const TextStyle(
-                            fontSize: 15, color: Colors.black54),
-                      ),
                       const SizedBox(
                         height: 10,
                       ),
                       Text(
                         "${dst['address']}\n${dst['name']}",
-                        style: const TextStyle(fontSize: 18),
+                        style: const TextStyle(
+                            fontSize: 18, color: Colors.black54),
                       ),
                     ],
                   ),
