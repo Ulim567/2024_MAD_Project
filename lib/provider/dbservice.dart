@@ -466,4 +466,57 @@ class DatabaseService with ChangeNotifier {
       }
     });
   }
+
+  Stream<List<Map<String, dynamic>>> trackFriendsTrackingInfo(String uid) {
+    return _userCollection
+        .doc(uid)
+        .snapshots()
+        .asyncExpand((userSnapshot) async* {
+      if (!userSnapshot.exists) {
+        yield [];
+        return;
+      }
+
+      // Get the user's tracking_friends list
+      final userData = userSnapshot.data() as Map<String, dynamic>?;
+      if (userData == null) {
+        yield [];
+        return;
+      }
+
+      final List<dynamic> trackingFriends = userData['tracking_friends'] ?? [];
+
+      // Fetch destination and name for each friend in parallel
+      final List<Future<Map<String, dynamic>?>> friendTrackingFutures =
+          trackingFriends.map((friendUid) async {
+        final friendSnapshot = await _userCollection.doc(friendUid).get();
+        if (friendSnapshot.exists) {
+          final friendData = friendSnapshot.data() as Map<String, dynamic>?;
+          if (friendData != null) {
+            final trackingInfo =
+                friendData['trackingInfo'] as Map<String, dynamic>?;
+            final destination =
+                trackingInfo?['destination'] as Map<String, dynamic>?;
+            final name = friendData['name'] as String?;
+
+            if (destination != null && name != null) {
+              return {
+                'name': name,
+                'destination': destination,
+              };
+            }
+          }
+        }
+        return null;
+      }).toList();
+
+      // Wait for all futures and filter out nulls
+      final List<Map<String, dynamic>> friendsTrackingInfo =
+          (await Future.wait(friendTrackingFutures))
+              .whereType<Map<String, dynamic>>()
+              .toList();
+
+      yield friendsTrackingInfo;
+    });
+  }
 }

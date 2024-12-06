@@ -108,44 +108,63 @@ class _CurrentStatePageState extends State<CurrentStatePage> {
                   ),
                   Expanded(child: Container()),
                   FutureBuilder<bool>(
-                      future: _databaseService.isTrackingNow(uid),
-                      builder: (context, snapshot) {
-                        final bool isTracking = snapshot.data ?? false;
+                    future: _databaseService.isTrackingNow(uid),
+                    builder: (context, snapshot) {
+                      final bool isTracking = snapshot.data ?? false;
 
-                        return IconButton(
-                          onPressed: () {
-                            if (isTracking) {
-                              Navigator.pushNamed(context, '/tracking');
-                            } else {
-                              var toast = getToast(context);
-                              toastification.dismissAll();
-                              toast.start();
-                            }
-                          },
-                          icon: Badge(
-                              isLabelVisible: isTracking,
-                              offset: const Offset(4, 4),
-                              backgroundColor: Colors.red,
-                              child: const Icon(Icons.map_outlined)),
-                          iconSize: 30,
-                        );
-                      })
+                      return IconButton(
+                        onPressed: () {
+                          if (isTracking) {
+                            Navigator.pushNamed(context, '/tracking');
+                          } else {
+                            var toast = getToast(context);
+                            toastification.dismissAll();
+                            toast.start();
+                          }
+                        },
+                        icon: Badge(
+                          isLabelVisible: isTracking,
+                          offset: const Offset(4, 4),
+                          backgroundColor: Colors.red,
+                          child: const Icon(Icons.map_outlined),
+                        ),
+                        iconSize: 30,
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
             Expanded(
-                child: ListView(
-              children: [
-                stateInfoCard("이우림", "경기도 성남시 중원로 72", "E금빛그랑메종5단지"),
-                stateInfoCard("이향우", "경상도 포항 북구 한동로 588", "한동대학교"),
-                stateInfoCard("이향우", "경상도 포항 북구 한동로 588", "한동대학교"),
-                stateInfoCard("이향우", "경상도 포항 북구 한동로 588", "한동대학교"),
-                stateInfoCard("이향우", "경상도 포항 북구 한동로 588", "한동대학교"),
-                stateInfoCard("이향우", "경상도 포항 북구 한동로 588", "한동대학교"),
-                stateInfoCard("이향우", "경상도 포항 북구 한동로 588", "한동대학교"),
-                stateInfoCard("이향우", "경상도 포항 북구 한동로 588", "한동대학교"),
-              ],
-            ))
+              child: StreamBuilder<List<Map<String, dynamic>>>(
+                stream: _databaseService.trackFriendsTrackingInfo(uid),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  }
+
+                  final friendsTrackingInfo = snapshot.data ?? [];
+
+                  return ListView.builder(
+                    itemCount: friendsTrackingInfo.length,
+                    itemBuilder: (context, index) {
+                      final friend = friendsTrackingInfo[index];
+                      final name = friend['name'] ?? 'Unknown';
+                      final destination =
+                          friend['destination']?['address'] ?? 'Unknown';
+                      final location =
+                          friend['destination']?['name'] ?? 'Unknown';
+
+                      return stateInfoCard(name, destination, location);
+                    },
+                  );
+                },
+              ),
+            ),
           ],
         ),
       ),
