@@ -21,6 +21,8 @@ class DatabaseService with ChangeNotifier {
       await _userCollection.doc(uid).set({
         'email': email,
         'name': name,
+        'friend': [],
+        'request': [],
         'createdAt': DateTime.now().toIso8601String(),
         'updatedAt': DateTime.now().toIso8601String(),
       });
